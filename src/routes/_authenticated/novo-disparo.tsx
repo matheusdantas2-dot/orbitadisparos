@@ -408,8 +408,37 @@ function NovoDisparo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Texto (use {`{{nome}} {{var1}} {{var2}} {{var3}}`})</Label>
-              <Textarea rows={6} value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Olá {{nome}}, ..." />
+              <Label>Texto da mensagem</Label>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-muted-foreground self-center mr-1">Inserir variável:</span>
+                {[
+                  { key: "nome", label: "Nome" },
+                  { key: "var1", label: "Var 1" },
+                  { key: "var2", label: "Var 2" },
+                  { key: "var3", label: "Var 3" },
+                ].map((v) => (
+                  <Button
+                    key={v.key}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs font-mono"
+                    onClick={() => inserirVariavel(v.key)}
+                  >
+                    {`{{${v.key}}}`}
+                  </Button>
+                ))}
+              </div>
+              <Textarea
+                ref={msgRef}
+                rows={6}
+                value={mensagem}
+                onChange={(e) => setMensagem(e.target.value)}
+                placeholder="Olá {{nome}}, ..."
+              />
+              <p className="text-xs text-muted-foreground">
+                Clique nos botões acima para inserir a variável na posição do cursor. Elas serão substituídas pelos dados de cada contato no envio.
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Preview (1º contato)</Label>
