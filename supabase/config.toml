@@ -2,3 +2,6 @@ project_id = "wqnnawqdyingrixrhzzb"
 
 [functions.get-contatos]
 verify_jwt = false
+
+[functions.salvar-progresso]
+verify_jwt = false
