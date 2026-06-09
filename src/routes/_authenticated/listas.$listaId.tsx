@@ -116,40 +116,116 @@ function ListaDetalhe() {
     refresh();
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const parseFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!/\.csv$/i.test(file.name)) {
+      toast.error("Arquivo precisa ter extensão .csv");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Arquivo muito grande (máx. 5MB)");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
     const text = await file.text();
-    const lines = text.split(/\r?\n/).filter((l) => l.trim());
-    if (lines.length === 0) return toast.error("CSV vazio");
-    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+    const allLines = text.split(/\r?\n/);
+    const lines = allLines.map((l) => l.trim()).filter((l) => l.length > 0);
+
+    if (lines.length === 0) {
+      toast.error("CSV está vazio");
+      return;
+    }
+
+    // detectar separador (vírgula ou ponto-e-vírgula)
+    const sep = lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
+    const headers = lines[0].split(sep).map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ""));
     const idxNome = headers.indexOf("nome");
-    const idxTel = headers.findIndex((h) => h === "telefone" || h === "phone");
-    if (idxTel === -1) return toast.error('CSV precisa ter coluna "telefone"');
+    const idxTel = headers.findIndex((h) => h === "telefone" || h === "phone" || h === "celular");
     const idxV1 = headers.indexOf("var1");
     const idxV2 = headers.indexOf("var2");
     const idxV3 = headers.indexOf("var3");
 
-    const rows = lines.slice(1).map((l) => {
-      const cols = l.split(",").map((c) => c.trim());
-      return {
+    if (idxTel === -1) {
+      setPreview({
+        fileName: file.name,
+        totalLines: lines.length - 1,
+        valid: [],
+        errors: [{ line: 1, reason: 'Coluna obrigatória "telefone" não encontrada no cabeçalho.' }],
+      });
+      return;
+    }
+
+    const knownCols = new Set(["nome", "telefone", "phone", "celular", "var1", "var2", "var3"]);
+    const unknown = headers.filter((h) => h && !knownCols.has(h));
+    const headerWarning = unknown.length > 0 ? `Colunas ignoradas: ${unknown.join(", ")}` : undefined;
+
+    const valid: ParsedRow[] = [];
+    const errors: RowError[] = [];
+    const seen = new Set<string>();
+
+    lines.slice(1).forEach((l, i) => {
+      const lineNum = i + 2; // 1-based + header
+      const cols = l.split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
+      const raw = cols[idxTel] ?? "";
+      const tel = raw.replace(/\D/g, "");
+
+      if (!tel) {
+        errors.push({ line: lineNum, reason: "Telefone vazio" });
+        return;
+      }
+      if (tel.length < 10 || tel.length > 15) {
+        errors.push({ line: lineNum, reason: `Telefone inválido (${raw}) — esperado 10 a 15 dígitos com DDI/DDD` });
+        return;
+      }
+      if (seen.has(tel)) {
+        errors.push({ line: lineNum, reason: `Telefone duplicado no arquivo (${tel})` });
+        return;
+      }
+      seen.add(tel);
+
+      valid.push({
+        line: lineNum,
+        nome: idxNome >= 0 ? cols[idxNome] || null : null,
+        telefone: tel,
+        var1: idxV1 >= 0 ? cols[idxV1] || null : null,
+        var2: idxV2 >= 0 ? cols[idxV2] || null : null,
+        var3: idxV3 >= 0 ? cols[idxV3] || null : null,
+      });
+    });
+
+    setPreview({ fileName: file.name, totalLines: lines.length - 1, valid, errors, headerWarning });
+  };
+
+  const confirmImport = async () => {
+    if (!preview || preview.valid.length === 0) return;
+    setImporting(true);
+    try {
+      const payload = preview.valid.map((r) => ({
         user_id: uid,
         lista_id: listaId,
-        nome: idxNome >= 0 ? cols[idxNome] : null,
-        telefone: cols[idxTel],
-        var1: idxV1 >= 0 ? cols[idxV1] : null,
-        var2: idxV2 >= 0 ? cols[idxV2] : null,
-        var3: idxV3 >= 0 ? cols[idxV3] : null,
-      };
-    }).filter((r) => r.telefone);
-
-    if (rows.length === 0) return toast.error("Nenhum contato válido");
-    const { error } = await supabase.from("contatos").insert(rows);
-    if (error) return toast.error(error.message);
-    toast.success(`${rows.length} contatos importados`);
-    if (fileRef.current) fileRef.current.value = "";
-    setOpenImport(false);
-    refresh();
+        nome: r.nome,
+        telefone: r.telefone,
+        var1: r.var1,
+        var2: r.var2,
+        var3: r.var3,
+      }));
+      const { error } = await supabase.from("contatos").insert(payload);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success(`${payload.length} contatos importados com sucesso`);
+      resetImport();
+      setOpenImport(false);
+      refresh();
+    } finally {
+      setImporting(false);
+    }
+  };
   };
 
   const handleDelete = async (id: string) => {
