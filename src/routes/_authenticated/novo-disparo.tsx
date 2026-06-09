@@ -53,6 +53,25 @@ function NovoDisparo() {
   const [iaBusy, setIaBusy] = useState(false);
 
   const [enviando, setEnviando] = useState(false);
+  const msgRef = useRef<HTMLTextAreaElement>(null);
+
+  const inserirVariavel = (variavel: string) => {
+    const token = `{{${variavel}}}`;
+    const el = msgRef.current;
+    if (!el) {
+      setMensagem((m) => m + token);
+      return;
+    }
+    const start = el.selectionStart ?? mensagem.length;
+    const end = el.selectionEnd ?? mensagem.length;
+    const novo = mensagem.slice(0, start) + token + mensagem.slice(end);
+    setMensagem(novo);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + token.length;
+      el.setSelectionRange(pos, pos);
+    });
+  };
 
   const { data: conexoes } = useQuery({
     queryKey: ["conx-min", uid],
