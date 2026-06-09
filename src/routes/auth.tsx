@@ -60,10 +60,10 @@ function AuthPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <Card className="w-full max-w-md border-border">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Zap className="h-6 w-6" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl brand-gradient text-primary-foreground elegant-shadow">
+            <Zap className="h-7 w-7" />
           </div>
-          <CardTitle className="text-2xl">DispararPro</CardTitle>
+          <CardTitle className="font-display text-3xl tracking-tight">Orbita</CardTitle>
           <CardDescription>Disparos em massa via WhatsApp</CardDescription>
         </CardHeader>
         <CardContent>

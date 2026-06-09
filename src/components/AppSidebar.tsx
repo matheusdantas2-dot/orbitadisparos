@@ -8,7 +8,7 @@ import {
   History,
   Settings,
   LogOut,
-  Zap,
+  Orbit,
 } from "lucide-react";
 import {
   Sidebar,
@@ -42,13 +42,13 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Zap className="h-4 w-4" />
+        <div className="flex items-center gap-2.5 px-2 py-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl brand-gradient text-primary-foreground elegant-shadow">
+            <Orbit className="h-5 w-5" strokeWidth={2.25} />
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">DispararPro</span>
-            <span className="text-xs text-muted-foreground">WhatsApp em massa</span>
+          <div className="flex flex-col leading-tight">
+            <span className="font-display text-base font-bold tracking-tight">Orbita</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">WhatsApp Suite</span>
           </div>
         </div>
       </SidebarHeader>

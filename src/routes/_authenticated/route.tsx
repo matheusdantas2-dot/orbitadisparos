@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Navigate, useNavigate } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ function AuthedLayout() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Seu plano está inativo. Renove para voltar a usar o DispararPro.
+              Seu plano está inativo. Renove para voltar a usar o Orbita.
             </p>
             <Button
               variant="outline"
@@ -55,9 +56,12 @@ function AuthedLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-border px-2 gap-2 bg-card">
+          <header className="h-14 flex items-center border-b border-border px-3 gap-2 bg-card/60 backdrop-blur sticky top-0 z-30">
             <SidebarTrigger />
-            <span className="text-sm text-muted-foreground">DispararPro</span>
+            <span className="font-display text-sm font-semibold tracking-tight brand-text">Orbita</span>
+            <div className="ml-auto flex items-center gap-1">
+              <ThemeToggle />
+            </div>
           </header>
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             <Outlet />
