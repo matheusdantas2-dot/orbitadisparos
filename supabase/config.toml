@@ -1,1 +1,4 @@
 project_id = "wqnnawqdyingrixrhzzb"
+
+[functions.get-contatos]
+verify_jwt = false
