@@ -152,7 +152,17 @@ function NovoDisparo() {
         })
         .select()
         .single();
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        console.error("[novo-disparo] erro ao inserir disparo:", insertErr);
+        toast.error(`Erro ao criar disparo: ${insertErr.message}`);
+        throw insertErr;
+      }
+      if (!disparoRow?.id) {
+        const msg = "Disparo criado sem id retornado";
+        console.error("[novo-disparo]", msg, disparoRow);
+        toast.error(msg);
+        throw new Error(msg);
+      }
 
       const payload = {
         user_id: uid,
@@ -170,6 +180,10 @@ function NovoDisparo() {
         listas: Array.from(listasSel),
         grupos: Array.from(gruposSel),
       };
+      console.log("[novo-disparo] payload enviado ao webhook:", {
+        ...payload,
+        anexo_base64: payload.anexo_base64 ? `<${payload.anexo_base64.length} chars>` : null,
+      });
       try {
         if (tipo === "contatos") await webhooks.salvarDisparos(payload);
         else await webhooks.salvarDisparoGrupo(payload);
