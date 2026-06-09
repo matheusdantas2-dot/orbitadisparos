@@ -19,6 +19,7 @@ import { Route as AuthenticatedGruposRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConexoesRouteImport } from './routes/_authenticated/conexoes'
+import { Route as AuthenticatedListasIndexRouteImport } from './routes/_authenticated/listas.index'
 import { Route as AuthenticatedListasListaIdRouteImport } from './routes/_authenticated/listas.$listaId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -72,6 +73,12 @@ const AuthenticatedConexoesRoute = AuthenticatedConexoesRouteImport.update({
   path: '/conexoes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedListasIndexRoute =
+  AuthenticatedListasIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedListasRoute,
+  } as any)
 const AuthenticatedListasListaIdRoute =
   AuthenticatedListasListaIdRouteImport.update({
     id: '/$listaId',
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/listas': typeof AuthenticatedListasRouteWithChildren
   '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
   '/listas/$listaId': typeof AuthenticatedListasListaIdRoute
+  '/listas/': typeof AuthenticatedListasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,9 +107,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/grupos': typeof AuthenticatedGruposRoute
   '/historico': typeof AuthenticatedHistoricoRoute
-  '/listas': typeof AuthenticatedListasRouteWithChildren
   '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
   '/listas/$listaId': typeof AuthenticatedListasListaIdRoute
+  '/listas': typeof AuthenticatedListasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/_authenticated/listas': typeof AuthenticatedListasRouteWithChildren
   '/_authenticated/novo-disparo': typeof AuthenticatedNovoDisparoRoute
   '/_authenticated/listas/$listaId': typeof AuthenticatedListasListaIdRoute
+  '/_authenticated/listas/': typeof AuthenticatedListasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/listas'
     | '/novo-disparo'
     | '/listas/$listaId'
+    | '/listas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,9 +149,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/grupos'
     | '/historico'
-    | '/listas'
     | '/novo-disparo'
     | '/listas/$listaId'
+    | '/listas'
   id:
     | '__root__'
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/_authenticated/listas'
     | '/_authenticated/novo-disparo'
     | '/_authenticated/listas/$listaId'
+    | '/_authenticated/listas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConexoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/listas/': {
+      id: '/_authenticated/listas/'
+      path: '/'
+      fullPath: '/listas/'
+      preLoaderRoute: typeof AuthenticatedListasIndexRouteImport
+      parentRoute: typeof AuthenticatedListasRoute
+    }
     '/_authenticated/listas/$listaId': {
       id: '/_authenticated/listas/$listaId'
       path: '/$listaId'
@@ -247,10 +265,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedListasRouteChildren {
   AuthenticatedListasListaIdRoute: typeof AuthenticatedListasListaIdRoute
+  AuthenticatedListasIndexRoute: typeof AuthenticatedListasIndexRoute
 }
 
 const AuthenticatedListasRouteChildren: AuthenticatedListasRouteChildren = {
   AuthenticatedListasListaIdRoute: AuthenticatedListasListaIdRoute,
+  AuthenticatedListasIndexRoute: AuthenticatedListasIndexRoute,
 }
 
 const AuthenticatedListasRouteWithChildren =

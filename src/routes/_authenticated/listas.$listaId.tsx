@@ -9,7 +9,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Trash2, Upload } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/listas/$listaId")({
@@ -45,6 +50,27 @@ function ListaDetalhe() {
   });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["contatos", listaId] });
+
+  const [openAdd, setOpenAdd] = useState(false);
+  const [form, setForm] = useState({ nome: "", telefone: "", var1: "", var2: "", var3: "" });
+
+  const handleAdd = async () => {
+    if (!form.telefone.trim()) return toast.error("Telefone é obrigatório");
+    const { error } = await supabase.from("contatos").insert({
+      user_id: uid,
+      lista_id: listaId,
+      nome: form.nome || null,
+      telefone: form.telefone,
+      var1: form.var1 || null,
+      var2: form.var2 || null,
+      var3: form.var3 || null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Contato adicionado");
+    setForm({ nome: "", telefone: "", var1: "", var2: "", var3: "" });
+    setOpenAdd(false);
+    refresh();
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,17 +115,22 @@ function ListaDetalhe() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <Button asChild size="icon" variant="ghost">
-          <Link to="/listas"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/listas">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">{lista?.nome ?? "Lista"}</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold truncate">{lista?.nome ?? "Lista"}</h1>
           <p className="text-sm text-muted-foreground">{contatos?.length ?? 0} contatos</p>
         </div>
         <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
-        <Button onClick={() => fileRef.current?.click()}>
+        <Button variant="outline" onClick={() => fileRef.current?.click()}>
           <Upload className="mr-2 h-4 w-4" /> Importar CSV
+        </Button>
+        <Button onClick={() => setOpenAdd(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Adicionar contato
         </Button>
       </div>
 
@@ -141,7 +172,7 @@ function ListaDetalhe() {
                 {contatos?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                      Nenhum contato. Importe um CSV.
+                      Nenhum contato. Importe um CSV ou adicione manualmente.
                     </TableCell>
                   </TableRow>
                 )}
@@ -150,6 +181,40 @@ function ListaDetalhe() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={openAdd} onOpenChange={setOpenAdd}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Adicionar contato</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome</Label>
+              <Input id="nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="telefone">Telefone *</Label>
+              <Input id="telefone" value={form.telefone} onChange={(e) => setForm({ ...form, telefone: e.target.value })} placeholder="5511999999999" />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="var1">var1</Label>
+                <Input id="var1" value={form.var1} onChange={(e) => setForm({ ...form, var1: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="var2">var2</Label>
+                <Input id="var2" value={form.var2} onChange={(e) => setForm({ ...form, var2: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="var3">var3</Label>
+                <Input id="var3" value={form.var3} onChange={(e) => setForm({ ...form, var3: e.target.value })} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenAdd(false)}>Cancelar</Button>
+            <Button onClick={handleAdd}>Adicionar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
