@@ -243,15 +243,71 @@ function NovoDisparo() {
               </RadioGroup>
             </div>
             <div className="space-y-2">
-              <Label>Conexão</Label>
-              <Select value={conexaoId} onValueChange={setConexaoId}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  {conexoes?.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label>Conexões (selecione uma ou mais)</Label>
+                <span className="text-xs text-muted-foreground">
+                  {conexoesSel.size} selecionada{conexoesSel.size === 1 ? "" : "s"}
+                </span>
+              </div>
+              {conexoes && conexoes.length > 0 ? (
+                <div className="space-y-2">
+                  {conexoes.map((c: any) => {
+                    const online = c.status === "conectado";
+                    const pendente = c.status === "pendente";
+                    const checked = conexoesSel.has(c.id);
+                    return (
+                      <label
+                        key={c.id}
+                        className={`flex items-center gap-3 p-3 border rounded-md transition-colors ${
+                          online ? "cursor-pointer hover:bg-accent" : "opacity-60 cursor-not-allowed"
+                        } ${checked ? "border-primary bg-accent/30" : "border-border"}`}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          disabled={!online}
+                          onCheckedChange={() => {
+                            if (!online) return;
+                            const n = new Set(conexoesSel);
+                            n.has(c.id) ? n.delete(c.id) : n.add(c.id);
+                            setConexoesSel(n);
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{c.nome}</div>
+                          {c.numero && <div className="text-xs text-muted-foreground truncate">{c.numero}</div>}
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                            online
+                              ? "bg-success/15 text-success"
+                              : pendente
+                              ? "bg-warning/15 text-warning"
+                              : "bg-destructive/15 text-destructive"
+                          }`}
+                        >
+                          {online ? (
+                            <>
+                              <Wifi className="h-3 w-3" /> Online
+                            </>
+                          ) : pendente ? (
+                            <>
+                              <Clock className="h-3 w-3" /> Pendente
+                            </>
+                          ) : (
+                            <>
+                              <WifiOff className="h-3 w-3" /> Offline
+                            </>
+                          )}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma conexão. Crie em "Conexões WhatsApp".
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
