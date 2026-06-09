@@ -145,23 +145,44 @@ function Historico() {
                   <TableHead>Tipo</TableHead>
                   <TableHead>Conexão</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Total</TableHead>
+                  <TableHead className="min-w-48">Progresso</TableHead>
                   <TableHead>Enviados</TableHead>
                   <TableHead>Falhos</TableHead>
+                  <TableHead>Pendentes</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {disparos?.map((d: any) => (
+                {disparos?.map((d: any) => {
+                  const total = d.total ?? 0;
+                  const enviados = d.enviados ?? 0;
+                  const falhos = d.falhos ?? 0;
+                  const processados = enviados + falhos;
+                  const pendentes = Math.max(0, total - processados);
+                  const pctEnv = total > 0 ? (enviados / total) * 100 : 0;
+                  const pctFal = total > 0 ? (falhos / total) * 100 : 0;
+                  const ativo = d.status === "em_andamento";
+                  return (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.nome}</TableCell>
                     <TableCell>{d.tipo}</TableCell>
                     <TableCell>{d.conexoes?.nome ?? "—"}</TableCell>
                     <TableCell><StatusBadge status={d.status} /></TableCell>
-                    <TableCell>{d.total}</TableCell>
-                    <TableCell className="text-success">{d.enviados}</TableCell>
-                    <TableCell className="text-destructive">{d.falhos}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className={`relative h-2 w-full overflow-hidden rounded-full bg-muted ${ativo ? "animate-pulse" : ""}`}>
+                          <div className="absolute inset-y-0 left-0 bg-success transition-all" style={{ width: `${pctEnv}%` }} />
+                          <div className="absolute inset-y-0 bg-destructive transition-all" style={{ left: `${pctEnv}%`, width: `${pctFal}%` }} />
+                        </div>
+                        <div className="text-xs text-muted-foreground tabular-nums">
+                          {processados}/{total} ({total > 0 ? Math.round((processados / total) * 100) : 0}%)
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-success tabular-nums">{enviados}</TableCell>
+                    <TableCell className="text-destructive tabular-nums">{falhos}</TableCell>
+                    <TableCell className="tabular-nums">{pendentes}</TableCell>
                     <TableCell>{new Date(d.created_at).toLocaleString("pt-BR")}</TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button size="icon" variant="ghost" onClick={() => setDetalheId(d.id)}><Eye className="h-4 w-4" /></Button>
