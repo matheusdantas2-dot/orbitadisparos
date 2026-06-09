@@ -427,7 +427,7 @@ function NovoDisparo() {
           <CardContent className="space-y-2 text-sm">
             <Row label="Nome" value={nome} />
             <Row label="Tipo" value={tipo} />
-            <Row label="Conexão" value={conexao?.nome ?? "—"} />
+            <Row label="Conexões" value={conexoesSelLista.map((c: any) => c.nome).join(", ") || "—"} />
             <Row label="Intervalo" value={`${intMin}s – ${intMax}s`} />
             <Row label="Agendamento" value={agendarTipo === "imediato" ? "Imediato" : new Date(agendamento).toLocaleString("pt-BR")} />
             <Row label="Destinatários" value={String(totalDestinatarios)} />
