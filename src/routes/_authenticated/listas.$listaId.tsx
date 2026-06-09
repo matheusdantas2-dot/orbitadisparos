@@ -58,6 +58,30 @@ function ListaDetalhe() {
   const [openImport, setOpenImport] = useState(false);
   const [form, setForm] = useState({ nome: "", telefone: "", var1: "", var2: "", var3: "" });
 
+  type ParsedRow = {
+    line: number;
+    nome: string | null;
+    telefone: string;
+    var1: string | null;
+    var2: string | null;
+    var3: string | null;
+  };
+  type RowError = { line: number; reason: string };
+  type Preview = {
+    fileName: string;
+    totalLines: number;
+    valid: ParsedRow[];
+    errors: RowError[];
+    headerWarning?: string;
+  };
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const resetImport = () => {
+    setPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
   const baixarModeloCSV = () => {
     const csv =
       "nome,telefone,var1,var2,var3\n" +
