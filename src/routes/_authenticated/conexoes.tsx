@@ -134,6 +134,9 @@ function ConexoesPage() {
                 <StatusBadge status={c.status} />
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
+                  <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
+                </Button>
                 <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
                   <Trash2 className="mr-1 h-3 w-3" /> Excluir
                 </Button>
