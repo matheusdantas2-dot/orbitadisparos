@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Loader2, Sparkles, Send } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Sparkles, Send, Wifi, WifiOff, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
@@ -35,7 +35,7 @@ function NovoDisparo() {
   const [step, setStep] = useState(1);
   const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState<Tipo>("contatos");
-  const [conexaoId, setConexaoId] = useState<string>("");
+  const [conexoesSel, setConexoesSel] = useState<Set<string>>(new Set());
   const [intMin, setIntMin] = useState(5);
   const [intMax, setIntMax] = useState(15);
   const [agendarTipo, setAgendarTipo] = useState<"imediato" | "agendado">("imediato");
@@ -56,8 +56,12 @@ function NovoDisparo() {
 
   const { data: conexoes } = useQuery({
     queryKey: ["conx-min", uid],
-    queryFn: async () => (await supabase.from("conexoes").select("id, nome").eq("user_id", uid)).data ?? [],
+    queryFn: async () =>
+      (await supabase.from("conexoes").select("id, nome, status, numero").eq("user_id", uid)).data ?? [],
+    refetchInterval: 10000,
   });
+
+  const primeiraConexaoId = useMemo(() => Array.from(conexoesSel)[0] ?? "", [conexoesSel]);
 
   const { data: listas } = useQuery({
     queryKey: ["listas-min", uid],
@@ -65,10 +69,10 @@ function NovoDisparo() {
   });
 
   const { data: grupos } = useQuery({
-    queryKey: ["grupos-min", uid, conexaoId],
+    queryKey: ["grupos-min", uid, primeiraConexaoId],
     queryFn: async () => {
-      if (!conexaoId) return [];
-      return (await supabase.from("grupos").select("*").eq("user_id", uid).eq("conexao_id", conexaoId)).data ?? [];
+      if (!primeiraConexaoId) return [];
+      return (await supabase.from("grupos").select("*").eq("user_id", uid).eq("conexao_id", primeiraConexaoId)).data ?? [];
     },
   });
 
@@ -127,8 +131,10 @@ function NovoDisparo() {
   };
 
   const handleEnviar = async () => {
-    const conexaoSel = conexoes?.find((c) => c.id === conexaoId);
-    if (!conexaoSel) return toast.error("Selecione uma conexão");
+    const selecionadas = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
+    if (selecionadas.length === 0) return toast.error("Selecione ao menos uma conexão");
+    const offline = selecionadas.filter((c: any) => c.status !== "conectado");
+    if (offline.length > 0) return toast.error(`Conexão offline selecionada: ${offline.map((c: any) => c.nome).join(", ")}`);
     setEnviando(true);
     try {
       const agendado = agendarTipo === "agendado" ? agendamento : null;
@@ -138,7 +144,7 @@ function NovoDisparo() {
           user_id: uid,
           nome,
           tipo,
-          conexao_id: conexaoId,
+          conexao_id: selecionadas[0].id,
           status: agendado ? "pendente" : "em_andamento",
           total: totalDestinatarios,
           enviados: 0,
@@ -169,8 +175,9 @@ function NovoDisparo() {
         disparo_id: disparoRow.id,
         nome,
         tipo,
-        conexao_id: conexaoId,
-        instance: conexaoSel.nome,
+        conexao_id: selecionadas[0].id,
+        instance: selecionadas[0].nome,
+        conexoes: selecionadas.map((c: any) => ({ id: c.id, instance: c.nome, numero: c.numero })),
         intervalo_min: intMin,
         intervalo_max: intMax,
         agendamento: agendado,
@@ -200,10 +207,10 @@ function NovoDisparo() {
     }
   };
 
-  const conexao = conexoes?.find((c) => c.id === conexaoId);
+  const conexoesSelLista = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
 
   const canNext =
-    (step === 1 && nome && conexaoId) ||
+    (step === 1 && nome && conexoesSel.size > 0) ||
     (step === 2 && ((tipo === "contatos" && listasSel.size > 0) || (tipo === "grupos" && gruposSel.size > 0))) ||
     (step === 3 && mensagem.trim().length > 0);
 
@@ -236,15 +243,71 @@ function NovoDisparo() {
               </RadioGroup>
             </div>
             <div className="space-y-2">
-              <Label>Conexão</Label>
-              <Select value={conexaoId} onValueChange={setConexaoId}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  {conexoes?.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label>Conexões (selecione uma ou mais)</Label>
+                <span className="text-xs text-muted-foreground">
+                  {conexoesSel.size} selecionada{conexoesSel.size === 1 ? "" : "s"}
+                </span>
+              </div>
+              {conexoes && conexoes.length > 0 ? (
+                <div className="space-y-2">
+                  {conexoes.map((c: any) => {
+                    const online = c.status === "conectado";
+                    const pendente = c.status === "pendente";
+                    const checked = conexoesSel.has(c.id);
+                    return (
+                      <label
+                        key={c.id}
+                        className={`flex items-center gap-3 p-3 border rounded-md transition-colors ${
+                          online ? "cursor-pointer hover:bg-accent" : "opacity-60 cursor-not-allowed"
+                        } ${checked ? "border-primary bg-accent/30" : "border-border"}`}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          disabled={!online}
+                          onCheckedChange={() => {
+                            if (!online) return;
+                            const n = new Set(conexoesSel);
+                            n.has(c.id) ? n.delete(c.id) : n.add(c.id);
+                            setConexoesSel(n);
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{c.nome}</div>
+                          {c.numero && <div className="text-xs text-muted-foreground truncate">{c.numero}</div>}
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                            online
+                              ? "bg-success/15 text-success"
+                              : pendente
+                              ? "bg-warning/15 text-warning"
+                              : "bg-destructive/15 text-destructive"
+                          }`}
+                        >
+                          {online ? (
+                            <>
+                              <Wifi className="h-3 w-3" /> Online
+                            </>
+                          ) : pendente ? (
+                            <>
+                              <Clock className="h-3 w-3" /> Pendente
+                            </>
+                          ) : (
+                            <>
+                              <WifiOff className="h-3 w-3" /> Offline
+                            </>
+                          )}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma conexão. Crie em "Conexões WhatsApp".
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -364,7 +427,7 @@ function NovoDisparo() {
           <CardContent className="space-y-2 text-sm">
             <Row label="Nome" value={nome} />
             <Row label="Tipo" value={tipo} />
-            <Row label="Conexão" value={conexao?.nome ?? "—"} />
+            <Row label="Conexões" value={conexoesSelLista.map((c: any) => c.nome).join(", ") || "—"} />
             <Row label="Intervalo" value={`${intMin}s – ${intMax}s`} />
             <Row label="Agendamento" value={agendarTipo === "imediato" ? "Imediato" : new Date(agendamento).toLocaleString("pt-BR")} />
             <Row label="Destinatários" value={String(totalDestinatarios)} />
