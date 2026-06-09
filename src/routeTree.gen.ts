@@ -9,38 +9,176 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedNovoDisparoRouteImport } from './routes/_authenticated/novo-disparo'
+import { Route as AuthenticatedListasRouteImport } from './routes/_authenticated/listas'
+import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
+import { Route as AuthenticatedGruposRouteImport } from './routes/_authenticated/grupos'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedConexoesRouteImport } from './routes/_authenticated/conexoes'
+import { Route as AuthenticatedListasListaIdRouteImport } from './routes/_authenticated/listas.$listaId'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedNovoDisparoRoute =
+  AuthenticatedNovoDisparoRouteImport.update({
+    id: '/novo-disparo',
+    path: '/novo-disparo',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedListasRoute = AuthenticatedListasRouteImport.update({
+  id: '/listas',
+  path: '/listas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGruposRoute = AuthenticatedGruposRouteImport.update({
+  id: '/grupos',
+  path: '/grupos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedConexoesRoute = AuthenticatedConexoesRouteImport.update({
+  id: '/conexoes',
+  path: '/conexoes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedListasListaIdRoute =
+  AuthenticatedListasListaIdRouteImport.update({
+    id: '/$listaId',
+    path: '/$listaId',
+    getParentRoute: () => AuthenticatedListasRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/conexoes': typeof AuthenticatedConexoesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/grupos': typeof AuthenticatedGruposRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
+  '/listas': typeof AuthenticatedListasRouteWithChildren
+  '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
+  '/listas/$listaId': typeof AuthenticatedListasListaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/conexoes': typeof AuthenticatedConexoesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/grupos': typeof AuthenticatedGruposRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
+  '/listas': typeof AuthenticatedListasRouteWithChildren
+  '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
+  '/listas/$listaId': typeof AuthenticatedListasListaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/conexoes': typeof AuthenticatedConexoesRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/grupos': typeof AuthenticatedGruposRoute
+  '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
+  '/_authenticated/listas': typeof AuthenticatedListasRouteWithChildren
+  '/_authenticated/novo-disparo': typeof AuthenticatedNovoDisparoRoute
+  '/_authenticated/listas/$listaId': typeof AuthenticatedListasListaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/conexoes'
+    | '/configuracoes'
+    | '/dashboard'
+    | '/grupos'
+    | '/historico'
+    | '/listas'
+    | '/novo-disparo'
+    | '/listas/$listaId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/conexoes'
+    | '/configuracoes'
+    | '/dashboard'
+    | '/grupos'
+    | '/historico'
+    | '/listas'
+    | '/novo-disparo'
+    | '/listas/$listaId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/conexoes'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/grupos'
+    | '/_authenticated/historico'
+    | '/_authenticated/listas'
+    | '/_authenticated/novo-disparo'
+    | '/_authenticated/listas/$listaId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +186,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/novo-disparo': {
+      id: '/_authenticated/novo-disparo'
+      path: '/novo-disparo'
+      fullPath: '/novo-disparo'
+      preLoaderRoute: typeof AuthenticatedNovoDisparoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/listas': {
+      id: '/_authenticated/listas'
+      path: '/listas'
+      fullPath: '/listas'
+      preLoaderRoute: typeof AuthenticatedListasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/historico': {
+      id: '/_authenticated/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/grupos': {
+      id: '/_authenticated/grupos'
+      path: '/grupos'
+      fullPath: '/grupos'
+      preLoaderRoute: typeof AuthenticatedGruposRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/conexoes': {
+      id: '/_authenticated/conexoes'
+      path: '/conexoes'
+      fullPath: '/conexoes'
+      preLoaderRoute: typeof AuthenticatedConexoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/listas/$listaId': {
+      id: '/_authenticated/listas/$listaId'
+      path: '/$listaId'
+      fullPath: '/listas/$listaId'
+      preLoaderRoute: typeof AuthenticatedListasListaIdRouteImport
+      parentRoute: typeof AuthenticatedListasRoute
+    }
   }
 }
 
+interface AuthenticatedListasRouteChildren {
+  AuthenticatedListasListaIdRoute: typeof AuthenticatedListasListaIdRoute
+}
+
+const AuthenticatedListasRouteChildren: AuthenticatedListasRouteChildren = {
+  AuthenticatedListasListaIdRoute: AuthenticatedListasListaIdRoute,
+}
+
+const AuthenticatedListasRouteWithChildren =
+  AuthenticatedListasRoute._addFileChildren(AuthenticatedListasRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedConexoesRoute: typeof AuthenticatedConexoesRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGruposRoute: typeof AuthenticatedGruposRoute
+  AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
+  AuthenticatedListasRoute: typeof AuthenticatedListasRouteWithChildren
+  AuthenticatedNovoDisparoRoute: typeof AuthenticatedNovoDisparoRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedConexoesRoute: AuthenticatedConexoesRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGruposRoute: AuthenticatedGruposRoute,
+  AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
+  AuthenticatedListasRoute: AuthenticatedListasRouteWithChildren,
+  AuthenticatedNovoDisparoRoute: AuthenticatedNovoDisparoRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

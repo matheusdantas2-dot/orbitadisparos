@@ -14,7 +14,305 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conexoes: {
+        Row: {
+          created_at: string
+          foto_url: string | null
+          id: string
+          nome: string
+          numero: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nome: string
+          numero?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          nome?: string
+          numero?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      configuracoes: {
+        Row: {
+          ia_api_key: string | null
+          ia_provider: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ia_api_key?: string | null
+          ia_provider?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ia_api_key?: string | null
+          ia_provider?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contatos: {
+        Row: {
+          created_at: string
+          id: string
+          lista_id: string
+          nome: string | null
+          telefone: string
+          user_id: string
+          var1: string | null
+          var2: string | null
+          var3: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lista_id: string
+          nome?: string | null
+          telefone: string
+          user_id: string
+          var1?: string | null
+          var2?: string | null
+          var3?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lista_id?: string
+          nome?: string | null
+          telefone?: string
+          user_id?: string
+          var1?: string | null
+          var2?: string | null
+          var3?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contatos_lista_id_fkey"
+            columns: ["lista_id"]
+            isOneToOne: false
+            referencedRelation: "listas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disparos: {
+        Row: {
+          agendamento: string | null
+          anexo_base64: string | null
+          anexo_tipo: string | null
+          conexao_id: string | null
+          created_at: string
+          enviados: number
+          falhos: number
+          id: string
+          intervalo_max: number
+          intervalo_min: number
+          mensagem: string | null
+          nome: string
+          status: string
+          tipo: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agendamento?: string | null
+          anexo_base64?: string | null
+          anexo_tipo?: string | null
+          conexao_id?: string | null
+          created_at?: string
+          enviados?: number
+          falhos?: number
+          id?: string
+          intervalo_max?: number
+          intervalo_min?: number
+          mensagem?: string | null
+          nome: string
+          status?: string
+          tipo?: string
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agendamento?: string | null
+          anexo_base64?: string | null
+          anexo_tipo?: string | null
+          conexao_id?: string | null
+          created_at?: string
+          enviados?: number
+          falhos?: number
+          id?: string
+          intervalo_max?: number
+          intervalo_min?: number
+          mensagem?: string | null
+          nome?: string
+          status?: string
+          tipo?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disparos_conexao_id_fkey"
+            columns: ["conexao_id"]
+            isOneToOne: false
+            referencedRelation: "conexoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disparos_detalhes: {
+        Row: {
+          created_at: string
+          destinatario: string
+          disparo_id: string
+          erro: string | null
+          id: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destinatario: string
+          disparo_id: string
+          erro?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destinatario?: string
+          disparo_id?: string
+          erro?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disparos_detalhes_disparo_id_fkey"
+            columns: ["disparo_id"]
+            isOneToOne: false
+            referencedRelation: "disparos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grupos: {
+        Row: {
+          conexao_id: string | null
+          created_at: string
+          foto_url: string | null
+          grupo_id_whatsapp: string
+          id: string
+          nome: string
+          participantes: number | null
+          user_id: string
+        }
+        Insert: {
+          conexao_id?: string | null
+          created_at?: string
+          foto_url?: string | null
+          grupo_id_whatsapp: string
+          id?: string
+          nome: string
+          participantes?: number | null
+          user_id: string
+        }
+        Update: {
+          conexao_id?: string | null
+          created_at?: string
+          foto_url?: string | null
+          grupo_id_whatsapp?: string
+          id?: string
+          nome?: string
+          participantes?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grupos_conexao_id_fkey"
+            columns: ["conexao_id"]
+            isOneToOne: false
+            referencedRelation: "conexoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listas: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usuarios: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string | null
+          plano_ativo: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string | null
+          plano_ativo?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          plano_ativo?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
