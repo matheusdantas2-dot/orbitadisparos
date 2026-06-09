@@ -58,9 +58,10 @@ async function post<T = any>(path: string, body: Record<string, any>): Promise<T
 
 export const webhooks = {
   criarInstancia: (body: { user_id: string; nome: string }) =>
-    post<{ qrcode?: string; instance?: string }>("webhook/criarconexaoback", body),
-  verificarConexao: (body: { user_id: string; instance: string }) =>
-    post<{ status: string; numero?: string; foto_url?: string }>("webhook/verificar-login", body),
+    post<any>("webhook/criarconexaoback", body),
+  verificarConexao: (body: { instanceName: string }) =>
+    post<any>("webhook/verificar-login", body),
+
   deletarInstancia: (body: { user_id: string; instance: string }) =>
     post("webhook/apagarconexaoback", body),
   deslogarInstancia: (body: { user_id: string; instance: string }) =>
