@@ -511,3 +511,26 @@ Maria Souza,5511988887777,Lead,RJ,Promo10`}
     </div>
   );
 }
+
+function StatCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "muted" | "success" | "destructive";
+}) {
+  const toneClasses =
+    tone === "success"
+      ? "border-success/40 bg-success/10 text-success"
+      : tone === "destructive"
+      ? "border-destructive/40 bg-destructive/10 text-destructive"
+      : "border-border bg-muted/40 text-foreground";
+  return (
+    <div className={`rounded-lg border px-3 py-2 ${toneClasses}`}>
+      <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
+      <div className="text-xl font-bold font-display tabular-nums">{value}</div>
+    </div>
+  );
+}
