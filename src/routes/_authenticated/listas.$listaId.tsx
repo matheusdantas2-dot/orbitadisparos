@@ -125,8 +125,6 @@ function ListaDetalhe() {
     refresh();
   };
 
-  // (mantido)
-
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("contatos").delete().eq("id", id);
     if (error) return toast.error(error.message);
