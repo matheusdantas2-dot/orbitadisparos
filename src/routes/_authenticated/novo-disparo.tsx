@@ -131,23 +131,52 @@ function NovoDisparo() {
     if (!conexaoSel) return toast.error("Selecione uma conexão");
     setEnviando(true);
     try {
+      const agendado = agendarTipo === "agendado" ? agendamento : null;
+      const { data: disparoRow, error: insertErr } = await supabase
+        .from("disparos")
+        .insert({
+          user_id: uid,
+          nome,
+          tipo,
+          conexao_id: conexaoId,
+          status: agendado ? "pendente" : "em_andamento",
+          total: totalDestinatarios,
+          enviados: 0,
+          falhos: 0,
+          mensagem,
+          anexo_tipo: anexoTipo === "nenhum" ? null : anexoTipo,
+          anexo_base64: anexoBase64 || null,
+          intervalo_min: intMin,
+          intervalo_max: intMax,
+          agendamento: agendado,
+        })
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
+
       const payload = {
         user_id: uid,
+        disparo_id: disparoRow.id,
         nome,
         tipo,
         conexao_id: conexaoId,
         instance: conexaoSel.nome,
         intervalo_min: intMin,
         intervalo_max: intMax,
-        agendamento: agendarTipo === "agendado" ? agendamento : null,
+        agendamento: agendado,
         mensagem,
         anexo_tipo: anexoTipo === "nenhum" ? null : anexoTipo,
         anexo_base64: anexoBase64 || null,
         listas: Array.from(listasSel),
         grupos: Array.from(gruposSel),
       };
-      if (tipo === "contatos") await webhooks.salvarDisparos(payload);
-      else await webhooks.salvarDisparoGrupo(payload);
+      try {
+        if (tipo === "contatos") await webhooks.salvarDisparos(payload);
+        else await webhooks.salvarDisparoGrupo(payload);
+      } catch (webhookErr: any) {
+        await supabase.from("disparos").update({ status: "falho" }).eq("id", disparoRow.id);
+        throw webhookErr;
+      }
       toast.success("Disparo iniciado!");
       navigate({ to: "/historico" });
     } catch (e: any) {
