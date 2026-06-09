@@ -194,9 +194,10 @@ function Historico() {
                       <Button size="icon" variant="ghost" onClick={() => setExcluirId(d.id)}><Trash2 className="h-4 w-4" /></Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
                 {disparos?.length === 0 && (
-                  <TableRow><TableCell colSpan={9} className="py-8 text-center text-muted-foreground">Sem disparos</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={11} className="py-8 text-center text-muted-foreground">Sem disparos</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
