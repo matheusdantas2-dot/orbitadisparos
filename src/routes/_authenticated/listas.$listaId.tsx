@@ -226,7 +226,6 @@ function ListaDetalhe() {
       setImporting(false);
     }
   };
-  };
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("contatos").delete().eq("id", id);
