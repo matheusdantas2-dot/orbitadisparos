@@ -245,7 +245,7 @@ function ListaDetalhe() {
           <h1 className="text-2xl font-bold truncate">{lista?.nome ?? "Lista"}</h1>
           <p className="text-sm text-muted-foreground">{contatos?.length ?? 0} contatos</p>
         </div>
-        <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
+        <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={parseFile} />
         <Button variant="outline" onClick={() => setOpenImport(true)}>
           <Upload className="mr-2 h-4 w-4" /> Importar CSV
         </Button>
