@@ -55,9 +55,12 @@ function AuthedLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-border px-2 gap-2 bg-card">
+          <header className="h-14 flex items-center border-b border-border px-3 gap-2 bg-card/60 backdrop-blur sticky top-0 z-30">
             <SidebarTrigger />
-            <span className="text-sm text-muted-foreground">DispararPro</span>
+            <span className="font-display text-sm font-semibold tracking-tight brand-text">Orbita</span>
+            <div className="ml-auto flex items-center gap-1">
+              <ThemeToggle />
+            </div>
           </header>
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             <Outlet />
