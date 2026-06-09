@@ -58,29 +58,29 @@ async function post<T = any>(path: string, body: Record<string, any>): Promise<T
 
 export const webhooks = {
   criarInstancia: (body: { user_id: string; nome: string }) =>
-    post<{ qrcode?: string; instance?: string }>("CRIAR_INSTANCIA", body),
+    post<{ qrcode?: string; instance?: string }>("webhook/criarconexaoback", body),
   verificarConexao: (body: { user_id: string; instance: string }) =>
-    post<{ status: string; numero?: string; foto_url?: string }>("VERIFICAR_CONEXAO", body),
+    post<{ status: string; numero?: string; foto_url?: string }>("webhook/verificar-login", body),
   deletarInstancia: (body: { user_id: string; instance: string }) =>
-    post("DELETAR_INSTANCIA", body),
+    post("webhook/apagarconexaoback", body),
   deslogarInstancia: (body: { user_id: string; instance: string }) =>
-    post("DESLOGAR_INSTANCIA", body),
+    post("webhook/apagarconexaoback", body),
   buscarFotoPerfil: (body: { user_id: string; instance: string }) =>
-    post<{ foto_url?: string }>("BUSCAR_FOTO_PERFIL", body),
+    post<{ foto_url?: string }>("webhook/verificar-login", body),
   listarGrupos: (body: { user_id: string; instance: string }) =>
     post<{ grupos: Array<{ id: string; nome: string; participantes: number; foto_url?: string }> }>(
-      "LISTAR_GRUPOS",
+      "webhook/listar-grupos",
       body,
     ),
   exportarParticipantes: (body: { user_id: string; instance: string; grupos: string[] }) =>
-    post("EXPORTAR_PARTICIPANTES", body),
-  salvarDisparos: (body: Record<string, any>) => post("SALVAR_DISPAROS", body),
-  salvarDisparoGrupo: (body: Record<string, any>) => post("SALVAR_DISPARO_GRUPO", body),
-  pausarDisparo: (body: { user_id: string; disparo_id: string }) => post("PAUSAR_DISPARO", body),
-  retomarDisparo: (body: { user_id: string; disparo_id: string }) => post("RETOMAR_DISPARO", body),
-  excluirDisparo: (body: { user_id: string; disparo_id: string }) => post("EXCLUIR_DISPARO", body),
+    post("webhook/listar-grupos", body),
+  salvarDisparos: (body: Record<string, any>) => post("webhook/disparar", body),
+  salvarDisparoGrupo: (body: Record<string, any>) => post("webhook/disparar", body),
+  pausarDisparo: (body: { user_id: string; disparo_id: string }) => post("webhook/pausar-disparo", body),
+  retomarDisparo: (body: { user_id: string; disparo_id: string }) => post("webhook/retomar-disparo", body),
+  excluirDisparo: (body: { user_id: string; disparo_id: string }) => post("webhook/excluir-disparo", body),
   gerarMensagemIA: (body: { user_id: string; prompt: string }) =>
-    post<{ mensagem: string }>("GERAR_MENSAGEM_IA", body),
+    post<{ mensagem: string }>("webhook/gerarmensagem-ia", body),
   salvarApikey: (body: { user_id: string; provider: string; api_key: string }) =>
-    post("SALVAR_APIKEY", body),
+    post("webhook/salvar-gpt", body),
 };
