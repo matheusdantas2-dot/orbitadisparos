@@ -230,6 +230,53 @@ function ListaDetalhe() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={openImport} onOpenChange={setOpenImport}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5 text-primary" />
+              Importar contatos via CSV
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-2">
+              <p className="font-medium text-foreground">Como funciona</p>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Baixe o modelo CSV abaixo.</li>
+                <li>Preencha os contatos seguindo o exemplo (não altere o cabeçalho).</li>
+                <li>Salve em formato <code className="text-foreground">.csv</code> (UTF-8).</li>
+                <li>Clique em <span className="text-foreground font-medium">Selecionar arquivo</span> e envie.</li>
+              </ol>
+            </div>
+
+            <div className="rounded-lg border border-border p-4 space-y-2">
+              <p className="font-medium text-foreground">Formato esperado</p>
+              <pre className="text-xs bg-muted/60 rounded p-2 overflow-x-auto">
+nome,telefone,var1,var2,var3
+João Silva,5511999999999,Cliente VIP,SP,
+Maria Souza,5511988887777,Lead,RJ,Promo10</pre>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <li>Apenas <code className="text-foreground">telefone</code> é obrigatório.</li>
+                <li>Telefone com DDI + DDD, sem espaços (ex.: <code>5511999999999</code>).</li>
+                <li><code>var1</code>, <code>var2</code>, <code>var3</code> podem ser usadas como variáveis na mensagem.</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" className="flex-1" onClick={baixarModeloCSV}>
+                <Download className="mr-2 h-4 w-4" /> Baixar modelo CSV
+              </Button>
+              <Button className="flex-1" onClick={() => fileRef.current?.click()}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" /> Selecionar arquivo
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpenImport(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
