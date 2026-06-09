@@ -56,8 +56,12 @@ function NovoDisparo() {
 
   const { data: conexoes } = useQuery({
     queryKey: ["conx-min", uid],
-    queryFn: async () => (await supabase.from("conexoes").select("id, nome").eq("user_id", uid)).data ?? [],
+    queryFn: async () =>
+      (await supabase.from("conexoes").select("id, nome, status, numero").eq("user_id", uid)).data ?? [],
+    refetchInterval: 10000,
   });
+
+  const primeiraConexaoId = useMemo(() => Array.from(conexoesSel)[0] ?? "", [conexoesSel]);
 
   const { data: listas } = useQuery({
     queryKey: ["listas-min", uid],
@@ -65,10 +69,10 @@ function NovoDisparo() {
   });
 
   const { data: grupos } = useQuery({
-    queryKey: ["grupos-min", uid, conexaoId],
+    queryKey: ["grupos-min", uid, primeiraConexaoId],
     queryFn: async () => {
-      if (!conexaoId) return [];
-      return (await supabase.from("grupos").select("*").eq("user_id", uid).eq("conexao_id", conexaoId)).data ?? [];
+      if (!primeiraConexaoId) return [];
+      return (await supabase.from("grupos").select("*").eq("user_id", uid).eq("conexao_id", primeiraConexaoId)).data ?? [];
     },
   });
 
