@@ -35,7 +35,7 @@ function NovoDisparo() {
   const [step, setStep] = useState(1);
   const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState<Tipo>("contatos");
-  const [conexaoId, setConexaoId] = useState<string>("");
+  const [conexoesSel, setConexoesSel] = useState<Set<string>>(new Set());
   const [intMin, setIntMin] = useState(5);
   const [intMax, setIntMax] = useState(15);
   const [agendarTipo, setAgendarTipo] = useState<"imediato" | "agendado">("imediato");
