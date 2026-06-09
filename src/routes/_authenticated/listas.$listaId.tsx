@@ -121,8 +121,11 @@ function ListaDetalhe() {
     if (error) return toast.error(error.message);
     toast.success(`${rows.length} contatos importados`);
     if (fileRef.current) fileRef.current.value = "";
+    setOpenImport(false);
     refresh();
   };
+
+  // (mantido)
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("contatos").delete().eq("id", id);
