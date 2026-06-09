@@ -88,6 +88,16 @@ function ConexoesPage() {
     }
   };
 
+  const handleReconectar = async (c: any) => {
+    try {
+      await webhooks.reconectarInstancia({ user_id: uid, instance: c.nome });
+      toast.success("Reconexão iniciada");
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const handleDeletar = async () => {
     const c = conexoes?.find((x) => x.id === deleteId);
     if (!c) return;
