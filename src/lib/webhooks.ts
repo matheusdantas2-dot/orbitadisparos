@@ -66,6 +66,8 @@ export const webhooks = {
     post("webhook/apagarconexaoback", body),
   deslogarInstancia: (body: { user_id: string; instance: string }) =>
     post("webhook/apagarconexaoback", body),
+  reconectarInstancia: (body: { user_id: string; instance: string }) =>
+    post<any>("webhook/reconectar", body),
   buscarFotoPerfil: (body: { user_id: string; instance: string }) =>
     post<{ foto_url?: string }>("webhook/verificar-login", body),
   listarGrupos: (body: { user_id: string; instance: string }) =>
