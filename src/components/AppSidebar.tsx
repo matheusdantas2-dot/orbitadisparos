@@ -8,8 +8,8 @@ import {
   History,
   Settings,
   LogOut,
-  Orbit,
 } from "lucide-react";
+import orbitaLogo from "@/assets/orbita-logo.png.asset.json";
 import {
   Sidebar,
   SidebarContent,
@@ -43,9 +43,13 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2.5 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl brand-gradient text-primary-foreground elegant-shadow">
-            <Orbit className="h-5 w-5" strokeWidth={2.25} />
-          </div>
+          <img
+            src={orbitaLogo.url}
+            alt="Orbita"
+            width={36}
+            height={36}
+            className="h-9 w-9 object-contain drop-shadow-[0_0_12px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+          />
           <div className="flex flex-col leading-tight">
             <span className="font-display text-base font-bold tracking-tight">Orbita</span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">WhatsApp Suite</span>
