@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Upload, Download, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/listas/$listaId")({
@@ -52,7 +52,24 @@ function ListaDetalhe() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["contatos", listaId] });
 
   const [openAdd, setOpenAdd] = useState(false);
+  const [openImport, setOpenImport] = useState(false);
   const [form, setForm] = useState({ nome: "", telefone: "", var1: "", var2: "", var3: "" });
+
+  const baixarModeloCSV = () => {
+    const csv =
+      "nome,telefone,var1,var2,var3\n" +
+      "João Silva,5511999999999,Cliente VIP,SP,\n" +
+      "Maria Souza,5511988887777,Lead,RJ,Promo10\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "modelo-contatos-orbita.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleAdd = async () => {
     if (!form.telefone.trim()) return toast.error("Telefone é obrigatório");
@@ -126,7 +143,7 @@ function ListaDetalhe() {
           <p className="text-sm text-muted-foreground">{contatos?.length ?? 0} contatos</p>
         </div>
         <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleUpload} />
-        <Button variant="outline" onClick={() => fileRef.current?.click()}>
+        <Button variant="outline" onClick={() => setOpenImport(true)}>
           <Upload className="mr-2 h-4 w-4" /> Importar CSV
         </Button>
         <Button onClick={() => setOpenAdd(true)}>
@@ -134,9 +151,6 @@ function ListaDetalhe() {
         </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Formato CSV: <code>nome,telefone,var1,var2,var3</code> (apenas <code>telefone</code> é obrigatório).
-      </p>
 
       {isLoading ? (
         <Skeleton className="h-40" />
