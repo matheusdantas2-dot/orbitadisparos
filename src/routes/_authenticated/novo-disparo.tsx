@@ -131,8 +131,10 @@ function NovoDisparo() {
   };
 
   const handleEnviar = async () => {
-    const conexaoSel = conexoes?.find((c) => c.id === conexaoId);
-    if (!conexaoSel) return toast.error("Selecione uma conexão");
+    const selecionadas = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
+    if (selecionadas.length === 0) return toast.error("Selecione ao menos uma conexão");
+    const offline = selecionadas.filter((c: any) => c.status !== "conectado");
+    if (offline.length > 0) return toast.error(`Conexão offline selecionada: ${offline.map((c: any) => c.nome).join(", ")}`);
     setEnviando(true);
     try {
       const agendado = agendarTipo === "agendado" ? agendamento : null;
@@ -142,7 +144,7 @@ function NovoDisparo() {
           user_id: uid,
           nome,
           tipo,
-          conexao_id: conexaoId,
+          conexao_id: selecionadas[0].id,
           status: agendado ? "pendente" : "em_andamento",
           total: totalDestinatarios,
           enviados: 0,
@@ -173,8 +175,9 @@ function NovoDisparo() {
         disparo_id: disparoRow.id,
         nome,
         tipo,
-        conexao_id: conexaoId,
-        instance: conexaoSel.nome,
+        conexao_id: selecionadas[0].id,
+        instance: selecionadas[0].nome,
+        conexoes: selecionadas.map((c: any) => ({ id: c.id, instance: c.nome, numero: c.numero })),
         intervalo_min: intMin,
         intervalo_max: intMax,
         agendamento: agendado,
@@ -204,10 +207,10 @@ function NovoDisparo() {
     }
   };
 
-  const conexao = conexoes?.find((c) => c.id === conexaoId);
+  const conexoesSelLista = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
 
   const canNext =
-    (step === 1 && nome && conexaoId) ||
+    (step === 1 && nome && conexoesSel.size > 0) ||
     (step === 2 && ((tipo === "contatos" && listasSel.size > 0) || (tipo === "grupos" && gruposSel.size > 0))) ||
     (step === 3 && mensagem.trim().length > 0);
 
