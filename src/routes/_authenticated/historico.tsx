@@ -225,15 +225,15 @@ function Historico() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { cls: string; label: string }> = {
-    pendente: { cls: "bg-warning text-warning-foreground", label: "Pendente" },
-    em_andamento: { cls: "bg-primary text-primary-foreground", label: "Em andamento" },
-    pausado: { cls: "bg-muted text-muted-foreground", label: "Pausado" },
-    concluido: { cls: "bg-success text-success-foreground", label: "Concluído" },
-    falho: { cls: "bg-destructive text-destructive-foreground", label: "Falho" },
-    enviado: { cls: "bg-success text-success-foreground", label: "Enviado" },
+    pendente: { cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30", label: "Pendente" },
+    em_andamento: { cls: "bg-sky-500/15 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/30", label: "Em andamento" },
+    pausado: { cls: "bg-zinc-500/15 text-zinc-600 dark:text-zinc-300 ring-1 ring-zinc-500/30", label: "Pausado" },
+    concluido: { cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30", label: "Concluído" },
+    falho: { cls: "bg-red-500/15 text-red-600 dark:text-red-400 ring-1 ring-red-500/30", label: "Falho" },
+    enviado: { cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30", label: "Enviado" },
   };
   const cfg = map[status] || { cls: "bg-muted text-muted-foreground", label: status };
-  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${cfg.cls}`}>{cfg.label}</span>;
+  return <span className={`inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-full text-xs font-medium ${cfg.cls}`}>{cfg.label}</span>;
 }
 
 function DetalheDrawer({
