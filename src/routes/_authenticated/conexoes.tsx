@@ -217,23 +217,32 @@ function NovaConexaoDialog({
     setBusy(true);
     try {
       const res: any = await webhooks.criarInstancia({ user_id: userId, nome });
-      const inst = res?.instance || nome;
+      // resposta pode vir como array [{ instance, qrcode }] ou objeto direto
+      const payload = Array.isArray(res) ? res[0] : res;
+      const inst = payload?.instance?.instanceName || nome;
+      const qr = payload?.qrcode?.base64 || null;
       setInstance(inst);
-      if (res?.qrcode) setQrcode(res.qrcode);
+      if (qr) setQrcode(qr);
       // criar registro pendente
       await supabase.from("conexoes").insert({
         user_id: userId,
         nome: inst,
         status: "pendente",
       });
-      // poll
+      // poll a cada 3s no verificar-login
       pollRef.current = window.setInterval(async () => {
         try {
-          const v: any = await webhooks.verificarConexao({ user_id: userId, instance: inst });
-          if (v?.status === "connected" || v?.status === "conectado") {
+          const v: any = await webhooks.verificarConexao({ instanceName: inst });
+          const data = Array.isArray(v) ? v[0] : v;
+          const state = data?.state || data?.instance?.state || data?.status;
+          if (state === "open") {
             await supabase
               .from("conexoes")
-              .update({ status: "conectado", numero: v.numero, foto_url: v.foto_url })
+              .update({
+                status: "conectado",
+                numero: data?.numero || data?.number,
+                foto_url: data?.foto_url || data?.profilePictureUrl,
+              })
               .eq("user_id", userId)
               .eq("nome", inst);
             if (pollRef.current) window.clearInterval(pollRef.current);
@@ -249,6 +258,7 @@ function NovaConexaoDialog({
       setBusy(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
