@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,25 @@ function NovoDisparo() {
   const [iaBusy, setIaBusy] = useState(false);
 
   const [enviando, setEnviando] = useState(false);
+  const msgRef = useRef<HTMLTextAreaElement>(null);
+
+  const inserirVariavel = (variavel: string) => {
+    const token = `{{${variavel}}}`;
+    const el = msgRef.current;
+    if (!el) {
+      setMensagem((m) => m + token);
+      return;
+    }
+    const start = el.selectionStart ?? mensagem.length;
+    const end = el.selectionEnd ?? mensagem.length;
+    const novo = mensagem.slice(0, start) + token + mensagem.slice(end);
+    setMensagem(novo);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + token.length;
+      el.setSelectionRange(pos, pos);
+    });
+  };
 
   const { data: conexoes } = useQuery({
     queryKey: ["conx-min", uid],
@@ -389,8 +408,37 @@ function NovoDisparo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Texto (use {`{{nome}} {{var1}} {{var2}} {{var3}}`})</Label>
-              <Textarea rows={6} value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Olá {{nome}}, ..." />
+              <Label>Texto da mensagem</Label>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs text-muted-foreground self-center mr-1">Inserir variável:</span>
+                {[
+                  { key: "nome", label: "Nome" },
+                  { key: "var1", label: "Var 1" },
+                  { key: "var2", label: "Var 2" },
+                  { key: "var3", label: "Var 3" },
+                ].map((v) => (
+                  <Button
+                    key={v.key}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs font-mono"
+                    onClick={() => inserirVariavel(v.key)}
+                  >
+                    {`{{${v.key}}}`}
+                  </Button>
+                ))}
+              </div>
+              <Textarea
+                ref={msgRef}
+                rows={6}
+                value={mensagem}
+                onChange={(e) => setMensagem(e.target.value)}
+                placeholder="Olá {{nome}}, ..."
+              />
+              <p className="text-xs text-muted-foreground">
+                Clique nos botões acima para inserir a variável na posição do cursor. Elas serão substituídas pelos dados de cada contato no envio.
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Preview (1º contato)</Label>
