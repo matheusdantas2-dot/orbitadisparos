@@ -63,6 +63,18 @@ function Historico() {
     },
   });
 
+  useEffect(() => {
+    const ch = supabase
+      .channel(`disparos-${uid}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "disparos", filter: `user_id=eq.${uid}` },
+        () => qc.invalidateQueries({ queryKey: ["disparos", uid] }),
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [uid, qc]);
+
   const refresh = () => qc.invalidateQueries({ queryKey: ["disparos", uid] });
 
   const handlePausar = async (id: string) => {
