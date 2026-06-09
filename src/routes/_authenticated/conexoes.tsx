@@ -234,24 +234,28 @@ function NovaConexaoDialog({
         try {
           const v: any = await webhooks.verificarConexao({ instanceName: inst });
           const data = Array.isArray(v) ? v[0] : v;
-          const state = data?.state || data?.instance?.state || data?.status;
+          const state = data?.instance?.state;
           if (state === "open") {
+            if (pollRef.current) {
+              window.clearInterval(pollRef.current);
+              pollRef.current = null;
+            }
             await supabase
               .from("conexoes")
               .update({
                 status: "conectado",
-                numero: data?.numero || data?.number,
-                foto_url: data?.foto_url || data?.profilePictureUrl,
+                numero: data?.instance?.number || data?.numero,
+                foto_url: data?.instance?.profilePictureUrl || data?.foto_url,
               })
               .eq("user_id", userId)
               .eq("nome", inst);
-            if (pollRef.current) window.clearInterval(pollRef.current);
-            toast.success("Conectado!");
+            toast.success("WhatsApp conectado!");
             onCreated();
             onOpenChange(false);
           }
         } catch {}
       }, 3000) as any;
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
