@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Trash2, Upload, Download, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Upload, Download, FileSpreadsheet, CheckCircle2, AlertCircle, X, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/listas/$listaId")({
