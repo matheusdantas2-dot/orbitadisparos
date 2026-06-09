@@ -127,16 +127,16 @@ function NovoDisparo() {
   };
 
   const handleEnviar = async () => {
-    if (!conexao) return toast.error("Selecione uma conexão");
+    const conexaoSel = conexoes?.find((c) => c.id === conexaoId);
+    if (!conexaoSel) return toast.error("Selecione uma conexão");
     setEnviando(true);
     try {
-      const conexao = conexoes?.find((c) => c.id === conexaoId);
       const payload = {
         user_id: uid,
         nome,
         tipo,
         conexao_id: conexaoId,
-        instance: conexao?.nome,
+        instance: conexaoSel.nome,
         intervalo_min: intMin,
         intervalo_max: intMax,
         agendamento: agendarTipo === "agendado" ? agendamento : null,
