@@ -88,6 +88,16 @@ function ConexoesPage() {
     }
   };
 
+  const handleReconectar = async (c: any) => {
+    try {
+      await webhooks.reconectarInstancia({ user_id: uid, instance: c.nome });
+      toast.success("Reconexão iniciada");
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   const handleDeletar = async () => {
     const c = conexoes?.find((x) => x.id === deleteId);
     if (!c) return;
@@ -134,6 +144,9 @@ function ConexoesPage() {
                 <StatusBadge status={c.status} />
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
+                  <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
+                </Button>
                 <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
                   <Trash2 className="mr-1 h-3 w-3" /> Excluir
                 </Button>
