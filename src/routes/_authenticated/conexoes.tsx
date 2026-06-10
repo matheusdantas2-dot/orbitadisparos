@@ -151,29 +151,33 @@ function ConexoesPage() {
         </div>
       ) : conexoes && conexoes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {conexoes.map((c) => (
-            <Card key={c.id}>
-              <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                <Avatar>
-                  <AvatarImage src={c.foto_url || undefined} />
-                  <AvatarFallback>{c.nome.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="truncate text-base">{c.nome}</CardTitle>
-                  <p className="text-xs text-muted-foreground truncate">{c.numero || "—"}</p>
-                </div>
-                <StatusBadge status={c.status} />
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
-                  <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
-                  <Trash2 className="mr-1 h-3 w-3" /> Excluir
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {conexoes.map((c) => {
+            const numeroExt = c.status === "conectado" ? instancesMap?.[c.nome] : undefined;
+            const numero = numeroExt || c.numero;
+            return (
+              <Card key={c.id}>
+                <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                  <Avatar>
+                    <AvatarImage src={c.foto_url || undefined} />
+                    <AvatarFallback>{c.nome.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="truncate text-base">{c.nome}</CardTitle>
+                    <p className="text-xs text-muted-foreground truncate">{numero || "—"}</p>
+                  </div>
+                  <StatusBadge status={c.status} />
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
+                    <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
+                    <Trash2 className="mr-1 h-3 w-3" /> Excluir
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       ) : (
         <Card>
