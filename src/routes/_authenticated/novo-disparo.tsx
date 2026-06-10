@@ -377,12 +377,7 @@ function NovoDisparo() {
       {step === 3 && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Mensagem</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setIaOpen(true)}>
-                <Sparkles className="mr-2 h-4 w-4" /> Gerar com IA
-              </Button>
-            </div>
+            <CardTitle>Mensagem</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
