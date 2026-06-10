@@ -59,6 +59,27 @@ function ConexoesPage() {
     },
   });
 
+  const { data: instancesMap } = useQuery({
+    queryKey: ["fetchInstances"],
+    queryFn: async () => {
+      const r = await fetch("https://apiwpp.grupovlx.com.br/instance/fetchInstances", {
+        headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" },
+      });
+      if (!r.ok) throw new Error("Falha ao buscar instâncias");
+      const list = await r.json();
+      const arr = Array.isArray(list) ? list : [];
+      const map: Record<string, string> = {};
+      for (const item of arr) {
+        const inst = item?.instance ?? item;
+        const name = inst?.instanceName ?? inst?.name;
+        const number = inst?.owner ?? inst?.profileName ?? inst?.number ?? inst?.ownerJid;
+        if (name) map[name] = String(number ?? "").replace(/@.*$/, "");
+      }
+      return map;
+    },
+    refetchInterval: 30000,
+  });
+
   const [openNew, setOpenNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -130,29 +151,33 @@ function ConexoesPage() {
         </div>
       ) : conexoes && conexoes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {conexoes.map((c) => (
-            <Card key={c.id}>
-              <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                <Avatar>
-                  <AvatarImage src={c.foto_url || undefined} />
-                  <AvatarFallback>{c.nome.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="truncate text-base">{c.nome}</CardTitle>
-                  <p className="text-xs text-muted-foreground truncate">{c.numero || "—"}</p>
-                </div>
-                <StatusBadge status={c.status} />
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
-                  <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
-                  <Trash2 className="mr-1 h-3 w-3" /> Excluir
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {conexoes.map((c) => {
+            const numeroExt = c.status === "conectado" ? instancesMap?.[c.nome] : undefined;
+            const numero = numeroExt || c.numero;
+            return (
+              <Card key={c.id}>
+                <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                  <Avatar>
+                    <AvatarImage src={c.foto_url || undefined} />
+                    <AvatarFallback>{c.nome.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="truncate text-base">{c.nome}</CardTitle>
+                    <p className="text-xs text-muted-foreground truncate">{numero || "—"}</p>
+                  </div>
+                  <StatusBadge status={c.status} />
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleReconectar(c)}>
+                    <RefreshCw className="mr-1 h-3 w-3" /> Reconectar
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => setDeleteId(c.id)}>
+                    <Trash2 className="mr-1 h-3 w-3" /> Excluir
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       ) : (
         <Card>
@@ -226,8 +251,13 @@ function NovaConexaoDialog({
       const res: any = await webhooks.criarInstancia({ user_id: userId, nome });
       // resposta pode vir como array [{ instance, qrcode }] ou objeto direto
       const payload = Array.isArray(res) ? res[0] : res;
-      const inst = payload?.instance?.instanceName || nome;
-      const qr = payload?.qrcode?.base64 || null;
+      const rawName =
+        payload?.instance?.instanceName ??
+        payload?.instanceName ??
+        payload?.instance_name ??
+        nome;
+      const inst = typeof rawName === "string" && rawName.trim() ? rawName.trim() : nome;
+      const qr = payload?.qrcode?.base64 || payload?.qrcode || payload?.base64 || null;
       setInstance(inst);
       if (qr) setQrcode(qr);
       // criar registro pendente
