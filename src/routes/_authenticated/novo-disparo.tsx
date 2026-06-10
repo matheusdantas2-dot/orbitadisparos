@@ -14,10 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Loader2, Sparkles, Send, Wifi, WifiOff, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Send, Wifi, WifiOff, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
@@ -48,9 +45,6 @@ function NovoDisparo() {
   const [anexoTipo, setAnexoTipo] = useState<string>("nenhum");
   const [anexoBase64, setAnexoBase64] = useState<string>("");
 
-  const [iaOpen, setIaOpen] = useState(false);
-  const [iaPrompt, setIaPrompt] = useState("");
-  const [iaBusy, setIaBusy] = useState(false);
 
   const [enviando, setEnviando] = useState(false);
   const msgRef = useRef<HTMLTextAreaElement>(null);
@@ -132,22 +126,6 @@ function NovoDisparo() {
     reader.readAsDataURL(f);
   };
 
-  const handleIA = async () => {
-    if (!iaPrompt.trim()) return toast.error("Informe um prompt");
-    setIaBusy(true);
-    try {
-      const res: any = await webhooks.gerarMensagemIA({ user_id: uid, prompt: iaPrompt });
-      if (res?.mensagem) {
-        setMensagem(res.mensagem);
-        toast.success("Mensagem gerada");
-        setIaOpen(false);
-      }
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setIaBusy(false);
-    }
-  };
 
   const handleEnviar = async () => {
     const selecionadas = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
@@ -399,12 +377,7 @@ function NovoDisparo() {
       {step === 3 && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Mensagem</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setIaOpen(true)}>
-                <Sparkles className="mr-2 h-4 w-4" /> Gerar com IA
-              </Button>
-            </div>
+            <CardTitle>Mensagem</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -504,18 +477,6 @@ function NovoDisparo() {
         )}
       </div>
 
-      <Dialog open={iaOpen} onOpenChange={setIaOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Gerar mensagem com IA</DialogTitle></DialogHeader>
-          <Textarea rows={4} value={iaPrompt} onChange={(e) => setIaPrompt(e.target.value)} placeholder="Ex: mensagem promocional de Black Friday com 20% off..." />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIaOpen(false)}>Cancelar</Button>
-            <Button onClick={handleIA} disabled={iaBusy}>
-              {iaBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Gerar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
