@@ -59,6 +59,27 @@ function ConexoesPage() {
     },
   });
 
+  const { data: instancesMap } = useQuery({
+    queryKey: ["fetchInstances"],
+    queryFn: async () => {
+      const r = await fetch("https://apiwpp.grupovlx.com.br/instance/fetchInstances", {
+        headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" },
+      });
+      if (!r.ok) throw new Error("Falha ao buscar instâncias");
+      const list = await r.json();
+      const arr = Array.isArray(list) ? list : [];
+      const map: Record<string, string> = {};
+      for (const item of arr) {
+        const inst = item?.instance ?? item;
+        const name = inst?.instanceName ?? inst?.name;
+        const number = inst?.owner ?? inst?.profileName ?? inst?.number ?? inst?.ownerJid;
+        if (name) map[name] = String(number ?? "").replace(/@.*$/, "");
+      }
+      return map;
+    },
+    refetchInterval: 30000,
+  });
+
   const [openNew, setOpenNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
