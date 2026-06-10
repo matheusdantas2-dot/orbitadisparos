@@ -27,7 +27,6 @@ const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Conexões", url: "/conexoes", icon: Smartphone },
   { title: "Listas de Contatos", url: "/listas", icon: Users },
-  { title: "Grupos WhatsApp", url: "/grupos", icon: MessagesSquare },
   { title: "Novo Disparo", url: "/novo-disparo", icon: Send },
   { title: "Histórico", url: "/historico", icon: History },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
