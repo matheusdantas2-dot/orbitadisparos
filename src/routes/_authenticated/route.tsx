@@ -35,7 +35,7 @@ function AuthedLayout() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Seu plano está inativo. Renove para voltar a usar o Orbita.
+              Acesso bloqueado. Entre em contato com o administrador.
             </p>
             <Button
               variant="outline"

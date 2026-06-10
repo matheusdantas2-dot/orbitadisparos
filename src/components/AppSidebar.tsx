@@ -7,7 +7,10 @@ import {
   History,
   Settings,
   LogOut,
+  Shield,
 } from "lucide-react";
+
+const ADMIN_EMAIL = "matheusdantas2@gmail.com";
 import orbitaLogo from "@/assets/orbita-logo.png.asset.json";
 import {
   Sidebar,
@@ -89,6 +92,14 @@ export function AppSidebar() {
           >
             <LogOut className="mr-2 h-4 w-4" /> Sair
           </Button>
+          {user?.email?.toLowerCase() === ADMIN_EMAIL && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-1.5 px-2 py-1 text-[11px] text-muted-foreground/70 hover:text-foreground transition-colors"
+            >
+              <Shield className="h-3 w-3" /> Admin
+            </Link>
+          )}
         </div>
       </SidebarFooter>
     </Sidebar>
