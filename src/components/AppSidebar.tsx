@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Smartphone,
   Users,
-  MessagesSquare,
   Send,
   History,
   Settings,

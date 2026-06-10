@@ -15,7 +15,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedNovoDisparoRouteImport } from './routes/_authenticated/novo-disparo'
 import { Route as AuthenticatedListasRouteImport } from './routes/_authenticated/listas'
 import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
-import { Route as AuthenticatedGruposRouteImport } from './routes/_authenticated/grupos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConexoesRouteImport } from './routes/_authenticated/conexoes'
@@ -50,11 +49,6 @@ const AuthenticatedListasRoute = AuthenticatedListasRouteImport.update({
 const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGruposRoute = AuthenticatedGruposRouteImport.update({
-  id: '/grupos',
-  path: '/grupos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -92,7 +86,6 @@ export interface FileRoutesByFullPath {
   '/conexoes': typeof AuthenticatedConexoesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/grupos': typeof AuthenticatedGruposRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/listas': typeof AuthenticatedListasRouteWithChildren
   '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
@@ -105,7 +98,6 @@ export interface FileRoutesByTo {
   '/conexoes': typeof AuthenticatedConexoesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/grupos': typeof AuthenticatedGruposRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/novo-disparo': typeof AuthenticatedNovoDisparoRoute
   '/listas/$listaId': typeof AuthenticatedListasListaIdRoute
@@ -119,7 +111,6 @@ export interface FileRoutesById {
   '/_authenticated/conexoes': typeof AuthenticatedConexoesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/grupos': typeof AuthenticatedGruposRoute
   '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/listas': typeof AuthenticatedListasRouteWithChildren
   '/_authenticated/novo-disparo': typeof AuthenticatedNovoDisparoRoute
@@ -134,7 +125,6 @@ export interface FileRouteTypes {
     | '/conexoes'
     | '/configuracoes'
     | '/dashboard'
-    | '/grupos'
     | '/historico'
     | '/listas'
     | '/novo-disparo'
@@ -147,7 +137,6 @@ export interface FileRouteTypes {
     | '/conexoes'
     | '/configuracoes'
     | '/dashboard'
-    | '/grupos'
     | '/historico'
     | '/novo-disparo'
     | '/listas/$listaId'
@@ -160,7 +149,6 @@ export interface FileRouteTypes {
     | '/_authenticated/conexoes'
     | '/_authenticated/configuracoes'
     | '/_authenticated/dashboard'
-    | '/_authenticated/grupos'
     | '/_authenticated/historico'
     | '/_authenticated/listas'
     | '/_authenticated/novo-disparo'
@@ -218,13 +206,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/grupos': {
-      id: '/_authenticated/grupos'
-      path: '/grupos'
-      fullPath: '/grupos'
-      preLoaderRoute: typeof AuthenticatedGruposRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -280,7 +261,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConexoesRoute: typeof AuthenticatedConexoesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedGruposRoute: typeof AuthenticatedGruposRoute
   AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedListasRoute: typeof AuthenticatedListasRouteWithChildren
   AuthenticatedNovoDisparoRoute: typeof AuthenticatedNovoDisparoRoute
@@ -290,7 +270,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConexoesRoute: AuthenticatedConexoesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedGruposRoute: AuthenticatedGruposRoute,
   AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedListasRoute: AuthenticatedListasRouteWithChildren,
   AuthenticatedNovoDisparoRoute: AuthenticatedNovoDisparoRoute,
