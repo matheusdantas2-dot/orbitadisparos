@@ -14,10 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Loader2, Sparkles, Send, Wifi, WifiOff, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Send, Wifi, WifiOff, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
