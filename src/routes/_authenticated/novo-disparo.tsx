@@ -126,22 +126,6 @@ function NovoDisparo() {
     reader.readAsDataURL(f);
   };
 
-  const handleIA = async () => {
-    if (!iaPrompt.trim()) return toast.error("Informe um prompt");
-    setIaBusy(true);
-    try {
-      const res: any = await webhooks.gerarMensagemIA({ user_id: uid, prompt: iaPrompt });
-      if (res?.mensagem) {
-        setMensagem(res.mensagem);
-        toast.success("Mensagem gerada");
-        setIaOpen(false);
-      }
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setIaBusy(false);
-    }
-  };
 
   const handleEnviar = async () => {
     const selecionadas = (conexoes ?? []).filter((c: any) => conexoesSel.has(c.id));
