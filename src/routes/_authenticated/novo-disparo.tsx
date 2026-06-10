@@ -477,18 +477,6 @@ function NovoDisparo() {
         )}
       </div>
 
-      <Dialog open={iaOpen} onOpenChange={setIaOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Gerar mensagem com IA</DialogTitle></DialogHeader>
-          <Textarea rows={4} value={iaPrompt} onChange={(e) => setIaPrompt(e.target.value)} placeholder="Ex: mensagem promocional de Black Friday com 20% off..." />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIaOpen(false)}>Cancelar</Button>
-            <Button onClick={handleIA} disabled={iaBusy}>
-              {iaBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Gerar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
