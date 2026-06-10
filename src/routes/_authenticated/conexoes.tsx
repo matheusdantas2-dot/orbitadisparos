@@ -226,8 +226,13 @@ function NovaConexaoDialog({
       const res: any = await webhooks.criarInstancia({ user_id: userId, nome });
       // resposta pode vir como array [{ instance, qrcode }] ou objeto direto
       const payload = Array.isArray(res) ? res[0] : res;
-      const inst = payload?.instance?.instanceName || nome;
-      const qr = payload?.qrcode?.base64 || null;
+      const rawName =
+        payload?.instance?.instanceName ??
+        payload?.instanceName ??
+        payload?.instance_name ??
+        nome;
+      const inst = typeof rawName === "string" && rawName.trim() ? rawName.trim() : nome;
+      const qr = payload?.qrcode?.base64 || payload?.qrcode || payload?.base64 || null;
       setInstance(inst);
       if (qr) setQrcode(qr);
       // criar registro pendente
