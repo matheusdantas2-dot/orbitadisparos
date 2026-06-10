@@ -45,9 +45,6 @@ function NovoDisparo() {
   const [anexoTipo, setAnexoTipo] = useState<string>("nenhum");
   const [anexoBase64, setAnexoBase64] = useState<string>("");
 
-  const [iaOpen, setIaOpen] = useState(false);
-  const [iaPrompt, setIaPrompt] = useState("");
-  const [iaBusy, setIaBusy] = useState(false);
 
   const [enviando, setEnviando] = useState(false);
   const msgRef = useRef<HTMLTextAreaElement>(null);
