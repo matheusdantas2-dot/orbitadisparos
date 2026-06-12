@@ -216,6 +216,12 @@ function ConexoesPage() {
 
       <NovaConexaoDialog open={openNew} onOpenChange={setOpenNew} onCreated={refresh} userId={uid} />
 
+      <ReconectarDialog
+        info={reconnect}
+        onOpenChange={(v) => !v && setReconnect(null)}
+        onDone={refresh}
+      />
+
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
