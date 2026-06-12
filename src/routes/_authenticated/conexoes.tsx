@@ -82,8 +82,41 @@ function ConexoesPage() {
 
   const [openNew, setOpenNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [reconnect, setReconnect] = useState<{ id: string; nome: string } | null>(null);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["conexoes", uid] });
+
+  // Sincroniza status real via connectionState para cada conexão
+  const conexoesKey = conexoes?.map((c) => c.id).join(",") ?? "";
+  useEffect(() => {
+    if (!conexoes?.length) return;
+    let cancelled = false;
+    (async () => {
+      let mudou = false;
+      for (const c of conexoes) {
+        try {
+          const r = await fetch(
+            `https://apiwpp.grupovlx.com.br/instance/connectionState/${encodeURIComponent(c.nome)}`,
+            { headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+          );
+          if (!r.ok) continue;
+          const data = await r.json();
+          const state = data?.instance?.state ?? data?.state;
+          const novo = state === "open" ? "conectado" : "desconectado";
+          if (cancelled) return;
+          if (novo !== c.status) {
+            await supabase.from("conexoes").update({ status: novo }).eq("id", c.id);
+            mudou = true;
+          }
+        } catch {}
+      }
+      if (!cancelled && mudou) refresh();
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conexoesKey]);
 
   const handleAtualizarFoto = async (c: any) => {
     try {
