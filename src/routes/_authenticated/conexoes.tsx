@@ -398,31 +398,26 @@ function ReconectarDialog({
     setLoading(true);
     (async () => {
       try {
-        const r = await fetch("https://n8nwh.grupovlx.com.br/webhook/criarconexaoback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ instanceName: info.nome }),
-        });
+        const r = await fetch(
+          `https://apiwpp.grupovlx.com.br/instance/connect/${encodeURIComponent(info.nome)}`,
+          { headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+        );
         if (!r.ok) throw new Error("Falha ao iniciar reconexão");
         const data = await r.json();
-        const payload = Array.isArray(data) ? data[0] : data;
-        const qr =
-          payload?.qrcode?.base64 ?? payload?.qrcode ?? payload?.base64 ?? null;
+        const qr = data?.base64 ?? data?.qrcode?.base64 ?? null;
         if (cancelled) return;
         if (qr) setQrcode(qr);
         else toast.info("QR Code não retornado");
 
         pollRef.current = window.setInterval(async () => {
           try {
-            const v = await fetch("https://n8nwh.grupovlx.com.br/webhook/verificar-login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ instanceName: info.nome }),
-            });
+            const v = await fetch(
+              `https://apiwpp.grupovlx.com.br/instance/connectionState/${encodeURIComponent(info.nome)}`,
+              { headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+            );
             if (!v.ok) return;
             const vd = await v.json();
-            const vp = Array.isArray(vd) ? vd[0] : vd;
-            const state = vp?.instance?.state ?? vp?.state;
+            const state = vd?.instance?.state ?? vd?.state;
             if (state === "open") {
               if (pollRef.current) {
                 window.clearInterval(pollRef.current);
@@ -444,6 +439,7 @@ function ReconectarDialog({
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
       if (pollRef.current) {
