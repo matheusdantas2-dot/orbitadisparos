@@ -218,7 +218,7 @@ function ConexoesPage() {
 
       <ReconectarDialog
         info={reconnect}
-        onOpenChange={(v) => !v && setReconnect(null)}
+        onOpenChange={(v: boolean) => !v && setReconnect(null)}
         onDone={refresh}
       />
 
