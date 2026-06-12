@@ -82,8 +82,41 @@ function ConexoesPage() {
 
   const [openNew, setOpenNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [reconnect, setReconnect] = useState<{ id: string; nome: string } | null>(null);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["conexoes", uid] });
+
+  // Sincroniza status real via connectionState para cada conexão
+  const conexoesKey = conexoes?.map((c) => c.id).join(",") ?? "";
+  useEffect(() => {
+    if (!conexoes?.length) return;
+    let cancelled = false;
+    (async () => {
+      let mudou = false;
+      for (const c of conexoes) {
+        try {
+          const r = await fetch(
+            `https://apiwpp.grupovlx.com.br/instance/connectionState/${encodeURIComponent(c.nome)}`,
+            { headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+          );
+          if (!r.ok) continue;
+          const data = await r.json();
+          const state = data?.instance?.state ?? data?.state;
+          const novo = state === "open" ? "conectado" : "desconectado";
+          if (cancelled) return;
+          if (novo !== c.status) {
+            await supabase.from("conexoes").update({ status: novo }).eq("id", c.id);
+            mudou = true;
+          }
+        } catch {}
+      }
+      if (!cancelled && mudou) refresh();
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conexoesKey]);
 
   const handleAtualizarFoto = async (c: any) => {
     try {
@@ -109,14 +142,8 @@ function ConexoesPage() {
     }
   };
 
-  const handleReconectar = async (c: any) => {
-    try {
-      await webhooks.reconectarInstancia({ user_id: uid, instance: c.nome });
-      toast.success("Reconexão iniciada");
-      refresh();
-    } catch (e: any) {
-      toast.error(e.message);
-    }
+  const handleReconectar = (c: any) => {
+    setReconnect({ id: c.id, nome: c.nome });
   };
 
   const handleDeletar = async () => {
@@ -188,6 +215,12 @@ function ConexoesPage() {
       )}
 
       <NovaConexaoDialog open={openNew} onOpenChange={setOpenNew} onCreated={refresh} userId={uid} />
+
+      <ReconectarDialog
+        info={reconnect}
+        onOpenChange={(v: boolean) => !v && setReconnect(null)}
+        onDone={refresh}
+      />
 
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
         <AlertDialogContent>
@@ -331,6 +364,121 @@ function NovaConexaoDialog({
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Gerar QR
             </Button>
           )}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ReconectarDialog({
+  info,
+  onOpenChange,
+  onDone,
+}: {
+  info: { id: string; nome: string } | null;
+  onOpenChange: (v: boolean) => void;
+  onDone: () => void;
+}) {
+  const [qrcode, setQrcode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const pollRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!info) {
+      setQrcode(null);
+      setLoading(false);
+      if (pollRef.current) {
+        window.clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        const r = await fetch("https://n8nwh.grupovlx.com.br/webhook/criarconexaoback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ instanceName: info.nome }),
+        });
+        if (!r.ok) throw new Error("Falha ao iniciar reconexão");
+        const data = await r.json();
+        const payload = Array.isArray(data) ? data[0] : data;
+        const qr =
+          payload?.qrcode?.base64 ?? payload?.qrcode ?? payload?.base64 ?? null;
+        if (cancelled) return;
+        if (qr) setQrcode(qr);
+        else toast.info("QR Code não retornado");
+
+        pollRef.current = window.setInterval(async () => {
+          try {
+            const v = await fetch("https://n8nwh.grupovlx.com.br/webhook/verificar-login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ instanceName: info.nome }),
+            });
+            if (!v.ok) return;
+            const vd = await v.json();
+            const vp = Array.isArray(vd) ? vd[0] : vd;
+            const state = vp?.instance?.state ?? vp?.state;
+            if (state === "open") {
+              if (pollRef.current) {
+                window.clearInterval(pollRef.current);
+                pollRef.current = null;
+              }
+              await supabase
+                .from("conexoes")
+                .update({ status: "conectado" })
+                .eq("id", info.id);
+              toast.success("WhatsApp reconectado!");
+              onDone();
+              onOpenChange(false);
+            }
+          } catch {}
+        }, 3000) as unknown as number;
+      } catch (e: any) {
+        if (!cancelled) toast.error(e.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (pollRef.current) {
+        window.clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [info?.id]);
+
+  return (
+    <Dialog open={!!info} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reconectar WhatsApp</DialogTitle>
+          <DialogDescription>Escaneie o QR Code para reconectar.</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col items-center gap-3 min-h-[280px] justify-center">
+          {loading && !qrcode ? (
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          ) : qrcode ? (
+            <>
+              <img
+                src={qrcode.startsWith("data:") ? qrcode : `data:image/png;base64,${qrcode}`}
+                alt="QR Code"
+                className="h-64 w-64 rounded-md bg-white p-2"
+              />
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" /> Aguardando conexão...
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">Sem QR Code</p>
+          )}
+        </div>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
         </DialogFooter>
       </DialogContent>
