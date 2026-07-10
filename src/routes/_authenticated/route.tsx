@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Navigate, useNavigate } from "@tanstack/react-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import orbitaLogoHeader from "@/assets/orbita-logo.png.asset.json";
+import orbitaIconHeader from "@/assets/orbita-icon-192.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ function AuthedLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center border-b border-border px-3 gap-2 bg-card/60 backdrop-blur sticky top-0 z-30">
             <SidebarTrigger />
-            <img src={orbitaLogoHeader.url} alt="Orbita" width={22} height={22} className="h-5.5 w-5.5 object-contain" />
+            <img src={orbitaIconHeader.url} alt="Orbita" width={22} height={22} className="h-5.5 w-5.5 object-contain rounded" />
             <span className="font-display text-sm font-semibold tracking-tight brand-text">Orbita</span>
             <div className="ml-auto flex items-center gap-1">
               <ThemeToggle />

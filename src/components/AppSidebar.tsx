@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const ADMIN_EMAIL = "matheusdantas2@gmail.com";
-import orbitaLogo from "@/assets/orbita-logo.png.asset.json";
+import orbitaIcon from "@/assets/orbita-icon-192.png.asset.json";
 import {
   Sidebar,
   SidebarContent,
@@ -45,15 +45,15 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2.5 px-2 py-3">
           <img
-            src={orbitaLogo.url}
+            src={orbitaIcon.url}
             alt="Orbita"
             width={36}
             height={36}
-            className="h-9 w-9 object-contain drop-shadow-[0_0_12px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+            className="h-9 w-9 object-contain rounded-lg drop-shadow-[0_0_12px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
           />
           <div className="flex flex-col leading-tight">
             <span className="font-display text-base font-bold tracking-tight">Orbita</span>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">WhatsApp Suite</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Central de Disparo</span>
           </div>
         </div>
       </SidebarHeader>
