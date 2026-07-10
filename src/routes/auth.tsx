@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import orbitaLogo from "@/assets/orbita-logo.png.asset.json";
+import orbitaIcon from "@/assets/orbita-icon-192.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
@@ -41,11 +41,11 @@ function AuthPage() {
       <Card className="w-full max-w-md border-border">
         <CardHeader className="text-center space-y-3">
           <img
-            src={orbitaLogo.url}
+            src={orbitaIcon.url}
             alt="Orbita"
             width={72}
             height={72}
-            className="mx-auto h-18 w-18 object-contain drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
+            className="mx-auto h-18 w-18 object-contain rounded-2xl drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
           />
           <CardTitle className="font-display text-3xl tracking-tight brand-text">Orbita</CardTitle>
           <CardDescription>Disparos em massa via WhatsApp</CardDescription>

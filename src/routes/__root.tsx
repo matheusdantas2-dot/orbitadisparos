@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import orbitaLogo from "../assets/orbita-logo.png.asset.json";
+import orbitaIcon from "../assets/orbita-icon-192.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -74,16 +74,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Orbita — Disparos em massa via WhatsApp" },
+      { title: "Orbita — Central de Disparo" },
       {
         name: "description",
-        content: "Orbita: plataforma de disparos em massa via WhatsApp com gestão de contatos, grupos e campanhas.",
+        content: "Orbita: central de disparo em massa via WhatsApp com gestão de contatos, conexões e campanhas.",
       },
-      { property: "og:title", content: "Orbita — Disparos em massa via WhatsApp" },
-      { name: "twitter:title", content: "Orbita — Disparos em massa via WhatsApp" },
-      { name: "description", content: "WhatsApp Sender Pro: a SaaS for mass WhatsApp messaging." },
-      { property: "og:description", content: "WhatsApp Sender Pro: a SaaS for mass WhatsApp messaging." },
-      { name: "twitter:description", content: "WhatsApp Sender Pro: a SaaS for mass WhatsApp messaging." },
+      { property: "og:title", content: "Orbita — Central de Disparo" },
+      { name: "twitter:title", content: "Orbita — Central de Disparo" },
+      { property: "og:description", content: "Orbita: central de disparo em massa via WhatsApp com gestão de contatos, conexões e campanhas." },
+      { name: "twitter:description", content: "Orbita: central de disparo em massa via WhatsApp com gestão de contatos, conexões e campanhas." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72a30935-8cfb-4b1a-b7eb-402ed316018d/id-preview-ec7712f1--d7b6d451-788d-4e92-a0f5-d7fd5389cda7.lovable.app-1781121045099.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72a30935-8cfb-4b1a-b7eb-402ed316018d/id-preview-ec7712f1--d7b6d451-788d-4e92-a0f5-d7fd5389cda7.lovable.app-1781121045099.png" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -96,8 +95,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", type: "image/png", href: orbitaLogo.url },
-      { rel: "apple-touch-icon", href: orbitaLogo.url },
+      { rel: "icon", type: "image/png", href: orbitaIcon.url },
+      { rel: "apple-touch-icon", href: orbitaIcon.url },
       { rel: "stylesheet", href: appCss },
     ],
   }),
