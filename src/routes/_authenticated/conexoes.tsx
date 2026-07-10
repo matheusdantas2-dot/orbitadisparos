@@ -149,16 +149,33 @@ function ConexoesPage() {
   const handleDeletar = async () => {
     const c = conexoes?.find((x) => x.id === deleteId);
     if (!c) return;
+    // Tenta remover na Evolution API (ignora erros — pode não existir mais lá)
+    try {
+      await fetch(
+        `https://apiwpp.grupovlx.com.br/instance/logout/${encodeURIComponent(c.nome)}`,
+        { method: "DELETE", headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+      );
+    } catch {}
+    try {
+      await fetch(
+        `https://apiwpp.grupovlx.com.br/instance/delete/${encodeURIComponent(c.nome)}`,
+        { method: "DELETE", headers: { apikey: "26f1ee16ea2a3f7d4eeb4f87dc559675" } },
+      );
+    } catch {}
     try {
       await webhooks.deletarInstancia({ user_id: uid, instance: c.nome });
-      await supabase.from("conexoes").delete().eq("id", c.id);
-      toast.success("Conexão excluída");
-      setDeleteId(null);
-      refresh();
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch {}
+    // Sempre remove do banco, mesmo se a API externa falhar
+    const { error } = await supabase.from("conexoes").delete().eq("id", c.id);
+    if (error) {
+      toast.error("Falha ao remover: " + error.message);
+      return;
     }
+    toast.success("Conexão excluída");
+    setDeleteId(null);
+    refresh();
   };
+
 
   return (
     <div className="space-y-6">
