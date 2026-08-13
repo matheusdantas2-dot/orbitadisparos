@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://wqnnawqdyingrixrhzzb.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "orbita",
+      "version": "0.1.0",
+      "title": "Orbita"
+    },
+    "tools": [
+      {
+        "name": "list_conexoes",
+        "title": "Listar conexões WhatsApp",
+        "description": "Lista as conexões (instâncias de WhatsApp) do usuário autenticado, com status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_listas",
+        "title": "Listar listas de contatos",
+        "description": "Lista as listas de contatos do usuário autenticado.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_contatos",
+        "title": "Listar contatos de uma lista",
+        "description": "Lista os contatos de uma lista de contatos do usuário autenticado.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "lista_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID da lista de contatos."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100,
+              "description": "Máximo de contatos retornados."
+            }
+          },
+          "required": [
+            "lista_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_disparos",
+        "title": "Listar disparos",
+        "description": "Lista as campanhas de disparo do usuário autenticado com status e progresso.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Filtro opcional de status (ex.: enviando, concluido, pausado)."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50,
+              "description": "Máximo de campanhas retornadas."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_lista",
+        "title": "Criar lista de contatos",
+        "description": "Cria uma nova lista de contatos vazia para o usuário autenticado.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "nome": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nome da lista."
+            }
+          },
+          "required": [
+            "nome"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "add_contato",
+        "title": "Adicionar contato",
+        "description": "Adiciona um contato a uma lista de contatos do usuário autenticado.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "lista_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID da lista de destino."
+            },
+            "telefone": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Telefone com DDD, apenas números."
+            },
+            "nome": {
+              "type": "string",
+              "description": "Nome do contato."
+            },
+            "var1": {
+              "type": "string"
+            },
+            "var2": {
+              "type": "string"
+            },
+            "var3": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "lista_id",
+            "telefone"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

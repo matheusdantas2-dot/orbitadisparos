@@ -11,17 +11,29 @@ import orbitaIcon from "@/assets/orbita-icon-192.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+      ? { next: s.next }
+      : {},
+
   component: AuthPage,
 });
 
 function AuthPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />;
+  if (!loading && user) {
+    if (next) {
+      window.location.href = next;
+      return null;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,6 +45,10 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Bem-vindo!");
+    if (next) {
+      window.location.href = next;
+      return;
+    }
     navigate({ to: "/dashboard", replace: true });
   };
 
