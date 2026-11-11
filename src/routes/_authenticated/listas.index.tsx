@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Plus, Trash2, Users, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -38,6 +38,27 @@ function ListasPage() {
         .select("*, contatos(count)")
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+
+  const [busca, setBusca] = useState("");
+  const termo = busca.trim();
+  const { data: resultados, isFetching: buscando } = useQuery({
+    queryKey: ["busca-contatos", uid, termo],
+    enabled: termo.length >= 2,
+    queryFn: async () => {
+      const safe = termo.replace(/[%,()]/g, "");
+      const digits = safe.replace(/\D/g, "");
+      const filtros = [`nome.ilike.%${safe}%`];
+      if (digits) filtros.push(`telefone.ilike.%${digits}%`);
+      const { data, error } = await supabase
+        .from("contatos")
+        .select("id, nome, telefone, lista_id, listas(nome)")
+        .eq("user_id", uid)
+        .or(filtros.join(","))
+        .limit(100);
       if (error) throw error;
       return data as any[];
     },
@@ -77,6 +98,52 @@ function ListasPage() {
         </div>
         <Button onClick={() => setOpenNew(true)}><Plus className="mr-2 h-4 w-4" />Nova lista</Button>
       </div>
+
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9"
+              placeholder="Buscar nome ou número em todas as listas..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+          </div>
+          {termo.length >= 2 && (
+            buscando && !resultados ? (
+              <Skeleton className="h-16" />
+            ) : resultados && resultados.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Lista</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {resultados.map((c: any) => (
+                    <TableRow key={c.id}>
+                      <TableCell>{c.nome || "—"}</TableCell>
+                      <TableCell className="font-mono text-sm">{c.telefone}</TableCell>
+                      <TableCell>{c.listas?.nome ?? "—"}</TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild size="sm" variant="outline">
+                          <Link to="/listas/$listaId" params={{ listaId: c.lista_id }}>Abrir lista</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhum contato encontrado.</p>
+            )
+          )}
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <Skeleton className="h-40" />
