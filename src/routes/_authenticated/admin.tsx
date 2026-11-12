@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DefinirSenhaDialog } from "@/components/DefinirSenhaDialog";
 import { listUsuarios, inviteUsuario, togglePlanoAtivo } from "@/lib/admin.functions";
 
 const ADMIN_EMAIL = "matheusdantas2@gmail.com";
@@ -152,6 +153,8 @@ function AdminPage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                      <DefinirSenhaDialog userId={u.id} email={u.email} nome={u.nome} />
                       <Button
                         size="sm"
                         variant={u.plano_ativo ? "outline" : "default"}
@@ -168,6 +171,7 @@ function AdminPage() {
                           </>
                         )}
                       </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

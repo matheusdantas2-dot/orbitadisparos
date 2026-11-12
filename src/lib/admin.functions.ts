@@ -50,3 +50,29 @@ export const togglePlanoAtivo = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const definirSenhaUsuario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        emailConfirmacao: z.string().email(),
+        novaSenha: z.string().min(8).max(72),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    assertAdmin((context as any).claims);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: found, error: getErr } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    if (getErr || !found?.user) throw new Error("Usuário não encontrado");
+    if ((found.user.email ?? "").toLowerCase() !== data.emailConfirmacao.trim().toLowerCase()) {
+      throw new Error("O e-mail digitado não confere com a conta selecionada");
+    }
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.novaSenha,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
