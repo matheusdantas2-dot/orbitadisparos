@@ -16,6 +16,7 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({ meta: [{"title": "Dashboard | Orbita"}, {"name": "description", "content": "Acompanhe os resultados e campanhas da sua central de disparo Orbita."}, {"property": "og:title", "content": "Dashboard | Orbita"}, {"property": "og:description", "content": "Acompanhe os resultados e campanhas da sua central de disparo Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: Dashboard,
 });
 

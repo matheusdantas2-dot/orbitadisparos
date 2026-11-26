@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
 export const Route = createFileRoute("/_authenticated/conexoes")({
+  head: () => ({ meta: [{"title": "Conexões WhatsApp | Orbita"}, {"name": "description", "content": "Gerencie suas conexões WhatsApp na Orbita."}, {"property": "og:title", "content": "Conexões WhatsApp | Orbita"}, {"property": "og:description", "content": "Gerencie suas conexões WhatsApp na Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: ConexoesPage,
 });
 

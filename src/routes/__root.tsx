@@ -83,8 +83,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Orbita — Central de Disparo" },
       { property: "og:description", content: "Orbita: central de disparo em massa via WhatsApp com gestão de contatos, conexões e campanhas." },
       { name: "twitter:description", content: "Orbita: central de disparo em massa via WhatsApp com gestão de contatos, conexões e campanhas." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72a30935-8cfb-4b1a-b7eb-402ed316018d/id-preview-ec7712f1--d7b6d451-788d-4e92-a0f5-d7fd5389cda7.lovable.app-1781121045099.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/72a30935-8cfb-4b1a-b7eb-402ed316018d/id-preview-ec7712f1--d7b6d451-788d-4e92-a0f5-d7fd5389cda7.lovable.app-1781121045099.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],

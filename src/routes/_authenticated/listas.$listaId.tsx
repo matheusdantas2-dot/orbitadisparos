@@ -19,15 +19,24 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { parseCSV, parseXLSX, type Preview } from "@/lib/importar-contatos";
 
 export const Route = createFileRoute("/_authenticated/listas/$listaId")({
+  head: () => ({ meta: [
+    { title: "Contatos da lista | Orbita" },
+    { name: "description", content: "Gerencie os contatos da lista e importe arquivos CSV ou XLSX na Orbita." },
+    { property: "og:title", content: "Contatos da lista | Orbita" },
+    { property: "og:description", content: "Gerencie os contatos da lista e importe arquivos CSV ou XLSX na Orbita." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ListaDetalhe,
 });
 
 function ListaDetalhe() {
   const { listaId } = Route.useParams();
   const { user } = useAuth();
-  const uid = user!.id;
+  const uid = user?.id;
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -58,24 +67,9 @@ function ListaDetalhe() {
   const [openImport, setOpenImport] = useState(false);
   const [form, setForm] = useState({ nome: "", telefone: "", var1: "", var2: "", var3: "" });
 
-  type ParsedRow = {
-    line: number;
-    nome: string | null;
-    telefone: string;
-    var1: string | null;
-    var2: string | null;
-    var3: string | null;
-  };
-  type RowError = { line: number; reason: string };
-  type Preview = {
-    fileName: string;
-    totalLines: number;
-    valid: ParsedRow[];
-    errors: RowError[];
-    headerWarning?: string;
-  };
   const [preview, setPreview] = useState<Preview | null>(null);
   const [importing, setImporting] = useState(false);
+  const [parsing, setParsing] = useState(false);
 
   const resetImport = () => {
     setPreview(null);
@@ -99,6 +93,7 @@ function ListaDetalhe() {
   };
 
   const handleAdd = async () => {
+    if (!uid) return toast.error("Entre novamente para adicionar contatos");
     if (!form.telefone.trim()) return toast.error("Telefone é obrigatório");
     const { error } = await supabase.from("contatos").insert({
       user_id: uid,
@@ -119,9 +114,8 @@ function ListaDetalhe() {
   const parseFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!/\.csv$/i.test(file.name)) {
-      toast.error("Arquivo precisa ter extensão .csv");
+    if (!/\.(csv|xlsx)$/i.test(file.name)) {
+      toast.error("Arquivo precisa ter extensão .csv ou .xlsx");
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -130,78 +124,30 @@ function ListaDetalhe() {
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
-
-    const text = await file.text();
-    const allLines = text.split(/\r?\n/);
-    const lines = allLines.map((l) => l.trim()).filter((l) => l.length > 0);
-
-    if (lines.length === 0) {
-      toast.error("CSV está vazio");
-      return;
+    setParsing(true);
+    try {
+      if (/\.csv$/i.test(file.name)) {
+        setPreview(parseCSV(await file.text(), file.name));
+      } else {
+        const XLSX = await import("xlsx");
+        const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+        if (!sheet) throw new Error("XLSX está vazio");
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "", raw: false });
+        setPreview(parseXLSX(rows, file.name));
+      }
+    } catch (error) {
+      console.error("Erro ao ler arquivo de contatos:", error);
+      toast.error(error instanceof Error ? error.message : "Não foi possível ler o arquivo CSV ou XLSX");
+      if (fileRef.current) fileRef.current.value = "";
+    } finally {
+      setParsing(false);
     }
-
-    // detectar separador (vírgula ou ponto-e-vírgula)
-    const sep = lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
-    const headers = lines[0].split(sep).map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ""));
-    const idxNome = headers.indexOf("nome");
-    const idxTel = headers.findIndex((h) => h === "telefone" || h === "phone" || h === "celular");
-    const idxV1 = headers.indexOf("var1");
-    const idxV2 = headers.indexOf("var2");
-    const idxV3 = headers.indexOf("var3");
-
-    if (idxTel === -1) {
-      setPreview({
-        fileName: file.name,
-        totalLines: lines.length - 1,
-        valid: [],
-        errors: [{ line: 1, reason: 'Coluna obrigatória "telefone" não encontrada no cabeçalho.' }],
-      });
-      return;
-    }
-
-    const knownCols = new Set(["nome", "telefone", "phone", "celular", "var1", "var2", "var3"]);
-    const unknown = headers.filter((h) => h && !knownCols.has(h));
-    const headerWarning = unknown.length > 0 ? `Colunas ignoradas: ${unknown.join(", ")}` : undefined;
-
-    const valid: ParsedRow[] = [];
-    const errors: RowError[] = [];
-    const seen = new Set<string>();
-
-    lines.slice(1).forEach((l, i) => {
-      const lineNum = i + 2; // 1-based + header
-      const cols = l.split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
-      const raw = cols[idxTel] ?? "";
-      const tel = raw.replace(/\D/g, "");
-
-      if (!tel) {
-        errors.push({ line: lineNum, reason: "Telefone vazio" });
-        return;
-      }
-      if (tel.length < 10 || tel.length > 15) {
-        errors.push({ line: lineNum, reason: `Telefone inválido (${raw}) — esperado 10 a 15 dígitos com DDI/DDD` });
-        return;
-      }
-      if (seen.has(tel)) {
-        errors.push({ line: lineNum, reason: `Telefone duplicado no arquivo (${tel})` });
-        return;
-      }
-      seen.add(tel);
-
-      valid.push({
-        line: lineNum,
-        nome: idxNome >= 0 ? cols[idxNome] || null : null,
-        telefone: tel,
-        var1: idxV1 >= 0 ? cols[idxV1] || null : null,
-        var2: idxV2 >= 0 ? cols[idxV2] || null : null,
-        var3: idxV3 >= 0 ? cols[idxV3] || null : null,
-      });
-    });
-
-    setPreview({ fileName: file.name, totalLines: lines.length - 1, valid, errors, headerWarning });
   };
 
   const confirmImport = async () => {
-    if (!preview || preview.valid.length === 0) return;
+    if (!uid || !preview || preview.valid.length === 0) return;
     setImporting(true);
     try {
       const payload = preview.valid.map((r) => ({
@@ -245,9 +191,9 @@ function ListaDetalhe() {
           <h1 className="text-2xl font-bold truncate">{lista?.nome ?? "Lista"}</h1>
           <p className="text-sm text-muted-foreground">{contatos?.length ?? 0} contatos</p>
         </div>
-        <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={parseFile} />
+        <input ref={fileRef} type="file" accept=".csv,.xlsx" className="hidden" onChange={parseFile} />
         <Button variant="outline" onClick={() => setOpenImport(true)}>
-          <Upload className="mr-2 h-4 w-4" /> Importar CSV
+          <Upload className="mr-2 h-4 w-4" /> Importar CSV / XLSX
         </Button>
         <Button onClick={() => setOpenAdd(true)}>
           <Plus className="mr-2 h-4 w-4" /> Adicionar contato
@@ -289,7 +235,7 @@ function ListaDetalhe() {
                 {contatos?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                      Nenhum contato. Importe um CSV ou adicione manualmente.
+                      Nenhum contato. Importe um CSV ou XLSX ou adicione manualmente.
                     </TableCell>
                   </TableRow>
                 )}
@@ -340,13 +286,13 @@ function ListaDetalhe() {
           if (!o) resetImport();
         }}
       >
-        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] min-w-0 p-0 overflow-x-hidden overflow-y-auto rounded-lg [&>div]:min-w-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border bg-gradient-to-r from-primary/10 via-transparent to-transparent">
-            <DialogTitle className="flex items-center gap-2.5 font-display text-xl">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg brand-gradient text-primary-foreground">
+            <DialogTitle className="flex items-center gap-2.5 pr-4 font-display text-xl">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg brand-gradient text-primary-foreground">
                 <Upload className="h-4 w-4" />
               </span>
-              Importar contatos via CSV
+              Importar contatos via CSV ou XLSX
             </DialogTitle>
           </DialogHeader>
 
@@ -354,9 +300,9 @@ function ListaDetalhe() {
             <div className="px-6 py-5 space-y-4 text-sm">
               <ol className="grid gap-3 sm:grid-cols-2">
                 {[
-                  { n: 1, t: "Baixe o modelo", d: "Use o arquivo de exemplo abaixo." },
+                  { n: 1, t: "Escolha o formato", d: "Use o modelo CSV ou sua planilha XLSX." },
                   { n: 2, t: "Preencha os contatos", d: "Mantenha o cabeçalho intacto." },
-                  { n: 3, t: "Salve como .csv", d: "Codificação UTF-8." },
+                  { n: 3, t: "Salve como .csv ou .xlsx", d: "No CSV, use codificação UTF-8." },
                   { n: 4, t: "Envie o arquivo", d: "Validamos antes de importar." },
                 ].map((s) => (
                   <li key={s.n} className="flex gap-3 rounded-lg border border-border bg-muted/30 p-3">
@@ -374,7 +320,7 @@ function ListaDetalhe() {
               <div className="rounded-lg border border-border overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5" /> Formato esperado
+                    <FileText className="h-3.5 w-3.5" /> Formato CSV esperado
                   </span>
                   <Badge variant="secondary" className="text-[10px]">CSV · UTF-8</Badge>
                 </div>
@@ -387,16 +333,19 @@ Maria Souza,5511988887777,Lead,RJ,Promo10`}
                   <li>• <code className="text-foreground">telefone</code> é obrigatório (10–15 dígitos com DDI/DDD).</li>
                   <li>• <code className="text-foreground">nome</code>, <code className="text-foreground">var1</code>, <code className="text-foreground">var2</code>, <code className="text-foreground">var3</code> são opcionais.</li>
                   <li>• Separador aceito: vírgula (,) ou ponto-e-vírgula (;).</li>
-                  <li>• Tamanho máximo: 5MB.</li>
+                  <li>• XLSX: primeira aba, cabeçalho na linha 1: CNPJ, Razao Social, Telefones, E-mail.</li>
+                  <li>• No XLSX, Razao Social vira nome, CNPJ vira var1 e E-mail vira var2.</li>
+                  <li>• No XLSX, separe telefones por vírgula, ponto-e-vírgula ou barra; números sem DDI recebem 55.</li>
+                  <li>• Tamanho máximo: 5MB para ambos os formatos.</li>
                 </ul>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2 pt-1">
                 <Button variant="outline" className="flex-1" onClick={baixarModeloCSV}>
-                  <Download className="mr-2 h-4 w-4" /> Baixar modelo
+                  <Download className="mr-2 h-4 w-4" /> Baixar modelo CSV
                 </Button>
-                <Button className="flex-1" onClick={() => fileRef.current?.click()}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" /> Selecionar arquivo
+                <Button className="flex-1" disabled={parsing} onClick={() => fileRef.current?.click()}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" /> {parsing ? "Lendo arquivo..." : "Selecionar arquivo"}
                 </Button>
               </div>
             </div>
@@ -417,6 +366,16 @@ Maria Souza,5511988887777,Lead,RJ,Promo10`}
                 <StatCard label="Válidos" value={preview.valid.length} tone="success" />
                 <StatCard label="Com erro" value={preview.errors.length} tone="destructive" />
               </div>
+
+              {preview.warnings.length > 0 && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Avisos</AlertTitle>
+                  <AlertDescription className="break-words">
+                    {preview.warnings.length} números parecem fixos e não recebem WhatsApp
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {preview.headerWarning && (
                 <Alert>
@@ -439,7 +398,7 @@ Maria Souza,5511988887777,Lead,RJ,Promo10`}
                       {preview.errors.slice(0, 50).map((e, i) => (
                         <li key={i} className="flex gap-2 px-3 py-1.5">
                           <Badge variant="destructive" className="shrink-0 text-[10px] font-mono">L{e.line}</Badge>
-                          <span className="text-foreground">{e.reason}</span>
+                          <span className="min-w-0 break-words text-foreground">{e.reason}</span>
                         </li>
                       ))}
                       {preview.errors.length > 50 && (
@@ -458,7 +417,7 @@ Maria Souza,5511988887777,Lead,RJ,Promo10`}
                     <CheckCircle2 className="h-4 w-4 text-success" />
                     <span className="text-xs font-semibold">Pré-visualização (primeiros 5)</span>
                   </div>
-                  <div className="overflow-x-auto">
+                  <div className="min-w-0 max-w-full overflow-x-auto">
                     <table className="w-full text-xs">
                       <thead className="bg-muted/30 text-muted-foreground">
                         <tr>

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 
 export const Route = createFileRoute("/_authenticated/listas/")({
+  head: () => ({ meta: [{"title": "Listas de contatos | Orbita"}, {"name": "description", "content": "Organize suas listas e encontre contatos na Orbita."}, {"property": "og:title", "content": "Listas de contatos | Orbita"}, {"property": "og:description", "content": "Organize suas listas e encontre contatos na Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: ListasPage,
 });
 

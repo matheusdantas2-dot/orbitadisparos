@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
+  head: () => ({ meta: [{"title": "Configurações | Orbita"}, {"name": "description", "content": "Gerencie as configurações da sua conta Orbita."}, {"property": "og:title", "content": "Configurações | Orbita"}, {"property": "og:description", "content": "Gerencie as configurações da sua conta Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: Configuracoes,
 });
 

@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
 export const Route = createFileRoute("/_authenticated/novo-disparo")({
+  head: () => ({ meta: [{"title": "Novo disparo | Orbita"}, {"name": "description", "content": "Prepare uma campanha WhatsApp com suas listas e conexões na Orbita."}, {"property": "og:title", "content": "Novo disparo | Orbita"}, {"property": "og:description", "content": "Prepare uma campanha WhatsApp com suas listas e conexões na Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: NovoDisparo,
 });
 

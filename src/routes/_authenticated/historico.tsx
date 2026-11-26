@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { webhooks } from "@/lib/webhooks";
 
 export const Route = createFileRoute("/_authenticated/historico")({
+  head: () => ({ meta: [{"title": "Histórico de disparos | Orbita"}, {"name": "description", "content": "Consulte o histórico e progresso dos disparos realizados na Orbita."}, {"property": "og:title", "content": "Histórico de disparos | Orbita"}, {"property": "og:description", "content": "Consulte o histórico e progresso dos disparos realizados na Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: Historico,
 });
 

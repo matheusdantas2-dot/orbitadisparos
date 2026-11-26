@@ -11,6 +11,7 @@ import orbitaIcon from "@/assets/orbita-icon-192.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({ meta: [{"title": "Entrar | Orbita"}, {"name": "description", "content": "Entre na Orbita para gerenciar suas listas, conexões e disparos."}, {"property": "og:title", "content": "Entrar | Orbita"}, {"property": "og:description", "content": "Entre na Orbita para gerenciar suas listas, conexões e disparos."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
       ? { next: s.next }

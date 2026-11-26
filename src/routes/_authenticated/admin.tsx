@@ -31,6 +31,7 @@ import { listUsuarios, inviteUsuario, togglePlanoAtivo } from "@/lib/admin.funct
 const ADMIN_EMAIL = "matheusdantas2@gmail.com";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({ meta: [{"title": "Administração | Orbita"}, {"name": "description", "content": "Administre usuários e acessos da central Orbita."}, {"property": "og:title", "content": "Administração | Orbita"}, {"property": "og:description", "content": "Administre usuários e acessos da central Orbita."}, {"property": "og:type", "content": "website"}, {"name": "twitter:card", "content": "summary"}] }),
   component: AdminPage,
 });
 
